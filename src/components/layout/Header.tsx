@@ -1,10 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingCart, User, Phone } from 'lucide-react';
+import { Menu, X, ShoppingCart, User, Phone, LogOut, ChefHat, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/store/cartStore';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -18,7 +26,9 @@ export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const totalItems = useCartStore((state) => state.getTotalItems());
+  const { user, signOut, isAdmin, isSuperAdmin } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,6 +41,11 @@ export const Header = () => {
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [location]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <header
@@ -113,12 +128,53 @@ export const Header = () => {
               </Button>
             </Link>
 
-            <Link to="/auth" className="hidden md:block">
-              <Button variant="outline" size="sm" className="gap-2">
-                <User className="w-4 h-4" />
-                Login
-              </Button>
-            </Link>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2 hidden md:flex">
+                    <User className="w-4 h-4" />
+                    Account
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="cursor-pointer">
+                      <User className="w-4 h-4 mr-2" />
+                      My Profile
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/orders" className="cursor-pointer">
+                      <ChefHat className="w-4 h-4 mr-2" />
+                      My Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  {(isAdmin || isSuperAdmin) && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin" className="cursor-pointer">
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Admin Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/auth" className="hidden md:block">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <User className="w-4 h-4" />
+                  Login
+                </Button>
+              </Link>
+            )}
 
             <Link to="/booking" className="hidden md:block">
               <Button variant="hero" size="sm">
@@ -174,12 +230,41 @@ export const Header = () => {
                 </motion.div>
               ))}
               <div className="pt-4 flex flex-col gap-3">
-                <Link to="/auth">
-                  <Button variant="outline" className="w-full gap-2">
-                    <User className="w-4 h-4" />
-                    Login / Sign Up
-                  </Button>
-                </Link>
+                {user ? (
+                  <>
+                    <Link to="/profile">
+                      <Button variant="outline" className="w-full gap-2">
+                        <User className="w-4 h-4" />
+                        My Profile
+                      </Button>
+                    </Link>
+                    <Link to="/orders">
+                      <Button variant="outline" className="w-full gap-2">
+                        <ChefHat className="w-4 h-4" />
+                        My Orders
+                      </Button>
+                    </Link>
+                    {(isAdmin || isSuperAdmin) && (
+                      <Link to="/admin">
+                        <Button variant="outline" className="w-full gap-2">
+                          <LayoutDashboard className="w-4 h-4" />
+                          Admin Dashboard
+                        </Button>
+                      </Link>
+                    )}
+                    <Button variant="destructive" className="w-full gap-2" onClick={handleSignOut}>
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <Link to="/auth">
+                    <Button variant="outline" className="w-full gap-2">
+                      <User className="w-4 h-4" />
+                      Login / Sign Up
+                    </Button>
+                  </Link>
+                )}
                 <Link to="/booking">
                   <Button variant="hero" className="w-full">
                     Book a Table
