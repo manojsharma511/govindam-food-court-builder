@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { CartItem } from '@/store/cartStore';
+import { orderSchema, formatValidationErrors } from '@/lib/validations';
 
 export interface Order {
   id: string;
@@ -69,6 +70,24 @@ export const useCreateOrder = () => {
       phone?: string;
     }) => {
       if (!user) throw new Error('Must be logged in to place an order');
+
+      // Validate input data
+      const validationResult = orderSchema.safeParse({
+        items: items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
+        totalAmount,
+        specialInstructions: specialInstructions || '',
+        deliveryAddress: deliveryAddress || '',
+        phone: phone || '',
+      });
+
+      if (!validationResult.success) {
+        throw new Error(formatValidationErrors(validationResult.error));
+      }
 
       // Create order
       const { data: order, error: orderError } = await supabase
