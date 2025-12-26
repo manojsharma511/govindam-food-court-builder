@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Users, Phone, Mail, User, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, Users, Phone, Mail, User, CheckCircle, Loader2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useCreateBooking, BookingType } from '@/hooks/useBookings';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const BookingPage = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const createBooking = useCreateBooking();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     date: '',
@@ -24,13 +30,63 @@ const BookingPage = () => {
     '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM',
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Convert 12-hour time to 24-hour format for database
+  const convertTo24Hour = (time12h: string): string => {
+    const [time, modifier] = time12h.split(' ');
+    let [hours, minutes] = time.split(':');
+    if (hours === '12') {
+      hours = modifier === 'AM' ? '00' : '12';
+    } else if (modifier === 'PM') {
+      hours = String(parseInt(hours, 10) + 12);
+    }
+    return `${hours.padStart(2, '0')}:${minutes}:00`;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep(3);
-    toast({
-      title: 'Booking Confirmed!',
-      description: 'We\'ve sent a confirmation to your email.',
-    });
+    
+    if (!user) {
+      toast({
+        title: 'Login Required',
+        description: 'Please login to make a booking.',
+        variant: 'destructive',
+      });
+      navigate('/auth');
+      return;
+    }
+
+    try {
+      // Determine booking type based on time
+      const hour = parseInt(formData.time.split(':')[0]);
+      const isPM = formData.time.includes('PM');
+      const actualHour = isPM && hour !== 12 ? hour + 12 : hour;
+      const bookingType: BookingType = actualHour < 15 ? 'lunch' : 'dinner';
+
+      await createBooking.mutateAsync({
+        bookingType,
+        bookingDate: formData.date,
+        bookingTime: convertTo24Hour(formData.time),
+        guestCount: formData.guests === '10+' ? 10 : parseInt(formData.guests),
+        guestName: formData.name,
+        guestEmail: formData.email,
+        guestPhone: formData.phone,
+        specialRequests: formData.occasion 
+          ? `Occasion: ${formData.occasion}. ${formData.specialRequests}` 
+          : formData.specialRequests,
+      });
+
+      setStep(3);
+      toast({
+        title: 'Booking Confirmed!',
+        description: 'We\'ve sent a confirmation to your email.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Booking Failed',
+        description: error instanceof Error ? error.message : 'Failed to create booking. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -275,8 +331,21 @@ const BookingPage = () => {
                     >
                       Back
                     </Button>
-                    <Button type="submit" variant="hero" size="lg" className="flex-1">
-                      Confirm Booking
+                    <Button 
+                      type="submit" 
+                      variant="hero" 
+                      size="lg" 
+                      className="flex-1"
+                      disabled={createBooking.isPending}
+                    >
+                      {createBooking.isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Confirming...
+                        </>
+                      ) : (
+                        'Confirm Booking'
+                      )}
                     </Button>
                   </div>
                 </form>

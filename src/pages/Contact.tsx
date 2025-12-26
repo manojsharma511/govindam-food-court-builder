@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Send, Loader2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useMutation } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const contactInfo = [
   {
@@ -38,13 +40,39 @@ const ContactPage = () => {
     message: '',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const sendMessageMutation = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      const { error } = await supabase
+        .from('contact_messages')
+        .insert({
+          name: data.name,
+          email: data.email,
+          phone: data.phone || null,
+          subject: data.subject || null,
+          message: data.message,
+        });
+
+      if (error) throw error;
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: 'Message Sent!',
-      description: 'Thank you for contacting us. We\'ll get back to you shortly.',
-    });
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    
+    try {
+      await sendMessageMutation.mutateAsync(formData);
+      toast({
+        title: 'Message Sent!',
+        description: 'Thank you for contacting us. We\'ll get back to you shortly.',
+      });
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    } catch (error) {
+      toast({
+        title: 'Failed to Send',
+        description: 'There was an error sending your message. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -174,9 +202,24 @@ const ContactPage = () => {
                   />
                 </div>
 
-                <Button type="submit" variant="hero" size="lg" className="w-full md:w-auto gap-2">
-                  <Send className="w-5 h-5" />
-                  Send Message
+                <Button 
+                  type="submit" 
+                  variant="hero" 
+                  size="lg" 
+                  className="w-full md:w-auto gap-2"
+                  disabled={sendMessageMutation.isPending}
+                >
+                  {sendMessageMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      Send Message
+                    </>
+                  )}
                 </Button>
               </form>
             </motion.div>
