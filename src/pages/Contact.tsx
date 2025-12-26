@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { contactMessageSchema, formatValidationErrors } from '@/lib/validations';
 
 const contactInfo = [
   {
@@ -39,9 +40,17 @@ const ContactPage = () => {
     subject: '',
     message: '',
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const sendMessageMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
+      // Validate input data
+      const validationResult = contactMessageSchema.safeParse(data);
+
+      if (!validationResult.success) {
+        throw new Error(formatValidationErrors(validationResult.error));
+      }
+
       const { error } = await supabase
         .from('contact_messages')
         .insert({
@@ -56,8 +65,50 @@ const ContactPage = () => {
     },
   });
 
+  const validateField = (name: string, value: string) => {
+    const partialData = { ...formData, [name]: value };
+    const result = contactMessageSchema.safeParse(partialData);
+    
+    if (!result.success) {
+      const fieldError = result.error.errors.find((e) => e.path[0] === name);
+      if (fieldError) {
+        setErrors((prev) => ({ ...prev, [name]: fieldError.message }));
+      } else {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[name];
+          return newErrors;
+        });
+      }
+    } else {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Final validation
+    const validationResult = contactMessageSchema.safeParse(formData);
+    if (!validationResult.success) {
+      const fieldErrors: Record<string, string> = {};
+      validationResult.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      toast({
+        title: 'Validation Error',
+        description: 'Please fix the errors in the form.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     try {
       await sendMessageMutation.mutateAsync(formData);
@@ -66,17 +117,20 @@ const ContactPage = () => {
         description: 'Thank you for contacting us. We\'ll get back to you shortly.',
       });
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      setErrors({});
     } catch (error) {
       toast({
         title: 'Failed to Send',
-        description: 'There was an error sending your message. Please try again.',
+        description: error instanceof Error ? error.message : 'There was an error sending your message. Please try again.',
         variant: 'destructive',
       });
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    validateField(name, value);
   };
 
   return (
@@ -133,9 +187,14 @@ const ContactPage = () => {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors ${
+                        errors.name ? 'border-destructive' : 'border-border'
+                      }`}
                       placeholder="John Doe"
                     />
+                    {errors.name && (
+                      <p className="text-destructive text-sm mt-1">{errors.name}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
@@ -147,9 +206,14 @@ const ContactPage = () => {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors ${
+                        errors.email ? 'border-destructive' : 'border-border'
+                      }`}
                       placeholder="john@example.com"
                     />
+                    {errors.email && (
+                      <p className="text-destructive text-sm mt-1">{errors.email}</p>
+                    )}
                   </div>
                 </div>
 
@@ -163,20 +227,26 @@ const ContactPage = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors ${
+                        errors.phone ? 'border-destructive' : 'border-border'
+                      }`}
                       placeholder="+91 98765 43210"
                     />
+                    {errors.phone && (
+                      <p className="text-destructive text-sm mt-1">{errors.phone}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Subject *
+                      Subject
                     </label>
                     <select
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      required
-                      className="w-full px-4 py-3 bg-muted border border-border rounded-lg text-foreground focus:outline-none focus:border-primary transition-colors"
+                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground focus:outline-none focus:border-primary transition-colors ${
+                        errors.subject ? 'border-destructive' : 'border-border'
+                      }`}
                     >
                       <option value="">Select a subject</option>
                       <option value="reservation">Table Reservation</option>
@@ -184,6 +254,9 @@ const ContactPage = () => {
                       <option value="feedback">Feedback</option>
                       <option value="other">Other</option>
                     </select>
+                    {errors.subject && (
+                      <p className="text-destructive text-sm mt-1">{errors.subject}</p>
+                    )}
                   </div>
                 </div>
 
@@ -197,9 +270,14 @@ const ContactPage = () => {
                     onChange={handleChange}
                     required
                     rows={5}
-                    className="w-full px-4 py-3 bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors resize-none"
+                    className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors resize-none ${
+                      errors.message ? 'border-destructive' : 'border-border'
+                    }`}
                     placeholder="How can we help you?"
                   />
+                  {errors.message && (
+                    <p className="text-destructive text-sm mt-1">{errors.message}</p>
+                  )}
                 </div>
 
                 <Button 

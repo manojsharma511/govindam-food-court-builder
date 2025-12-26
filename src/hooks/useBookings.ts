@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { bookingSchema, formatValidationErrors } from '@/lib/validations';
 
 export type BookingType = 'table' | 'lunch' | 'dinner' | 'event';
 export type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
@@ -67,6 +68,22 @@ export const useCreateBooking = () => {
       specialRequests?: string;
     }) => {
       if (!user) throw new Error('Must be logged in to make a booking');
+
+      // Validate input data
+      const validationResult = bookingSchema.safeParse({
+        bookingType,
+        bookingDate,
+        bookingTime,
+        guestCount,
+        guestName,
+        guestEmail: guestEmail || '',
+        guestPhone,
+        specialRequests: specialRequests || '',
+      });
+
+      if (!validationResult.success) {
+        throw new Error(formatValidationErrors(validationResult.error));
+      }
 
       const { data, error } = await supabase
         .from('bookings')
