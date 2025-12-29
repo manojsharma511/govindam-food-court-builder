@@ -3,7 +3,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Star, Quote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const testimonials = [
+interface Testimonial {
+  id: number | string;
+  name: string;
+  role: string;
+  image: string;
+  rating: number;
+  text: string;
+}
+
+interface TestimonialsSectionProps {
+  title?: string;
+  subtitle?: string;
+  testimonials?: Testimonial[];
+}
+
+const defaultTestimonials: Testimonial[] = [
   {
     id: 1,
     name: 'Priya Sharma',
@@ -38,7 +53,11 @@ const testimonials = [
   },
 ];
 
-export const TestimonialsSection = () => {
+export const TestimonialsSection = ({
+  title = "What Our <span class='text-gradient-gold'>Guests Say</span>",
+  subtitle = "Testimonials",
+  testimonials = defaultTestimonials
+}: TestimonialsSectionProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const next = () => {
@@ -68,101 +87,103 @@ export const TestimonialsSection = () => {
           className="text-center mb-16"
         >
           <span className="text-primary text-sm font-medium uppercase tracking-widest">
-            Testimonials
+            {subtitle}
           </span>
-          <h2 className="text-4xl md:text-5xl font-heading font-bold mt-4 mb-6">
-            <span className="text-foreground">What Our</span>{' '}
-            <span className="text-gradient-gold">Guests Say</span>
-          </h2>
+          <h2 className="text-4xl md:text-5xl font-heading font-bold mt-4 mb-6" dangerouslySetInnerHTML={{ __html: title }} />
           <div className="ornament-line-long mx-auto" />
         </motion.div>
 
         {/* Testimonial Carousel */}
         <div className="max-w-4xl mx-auto">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={currentIndex}
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              transition={{ duration: 0.3 }}
-              className="bg-card rounded-2xl p-8 md:p-12 shadow-card border border-border"
-            >
-              <div className="flex flex-col md:flex-row gap-8 items-center">
-                {/* Avatar */}
-                <div className="flex-shrink-0">
-                  <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary shadow-gold">
-                    <img
-                      src={testimonials[currentIndex].image}
-                      alt={testimonials[currentIndex].name}
-                      className="w-full h-full object-cover"
+          {testimonials.length > 0 ? (
+            <>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentIndex}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -50 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-card rounded-2xl p-8 md:p-12 shadow-card border border-border"
+                >
+                  <div className="flex flex-col md:flex-row gap-8 items-center">
+                    {/* Avatar */}
+                    <div className="flex-shrink-0">
+                      <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary shadow-gold">
+                        <img
+                          src={testimonials[currentIndex].image}
+                          alt={testimonials[currentIndex].name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 text-center md:text-left">
+                      {/* Stars */}
+                      <div className="flex justify-center md:justify-start gap-1 mb-4">
+                        {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
+                          <Star key={i} className="w-5 h-5 text-primary fill-primary" />
+                        ))}
+                      </div>
+
+                      {/* Quote */}
+                      <blockquote className="text-lg md:text-xl text-foreground leading-relaxed mb-6">
+                        "{testimonials[currentIndex].text}"
+                      </blockquote>
+
+                      {/* Author */}
+                      <div>
+                        <h4 className="font-heading font-semibold text-primary text-lg">
+                          {testimonials[currentIndex].name}
+                        </h4>
+                        <p className="text-muted-foreground text-sm">
+                          {testimonials[currentIndex].role}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Navigation */}
+              <div className="flex justify-center items-center gap-4 mt-8">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={prev}
+                  className="rounded-full"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+
+                {/* Dots */}
+                <div className="flex gap-2">
+                  {testimonials.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex
+                          ? 'w-8 bg-primary'
+                          : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                        }`}
                     />
-                  </div>
+                  ))}
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 text-center md:text-left">
-                  {/* Stars */}
-                  <div className="flex justify-center md:justify-start gap-1 mb-4">
-                    {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-primary fill-primary" />
-                    ))}
-                  </div>
-
-                  {/* Quote */}
-                  <blockquote className="text-lg md:text-xl text-foreground leading-relaxed mb-6">
-                    "{testimonials[currentIndex].text}"
-                  </blockquote>
-
-                  {/* Author */}
-                  <div>
-                    <h4 className="font-heading font-semibold text-primary text-lg">
-                      {testimonials[currentIndex].name}
-                    </h4>
-                    <p className="text-muted-foreground text-sm">
-                      {testimonials[currentIndex].role}
-                    </p>
-                  </div>
-                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={next}
+                  className="rounded-full"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
               </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Navigation */}
-          <div className="flex justify-center items-center gap-4 mt-8">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={prev}
-              className="rounded-full"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-
-            {/* Dots */}
-            <div className="flex gap-2">
-              {testimonials.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentIndex
-                      ? 'w-8 bg-primary'
-                      : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-                  }`}
-                />
-              ))}
-            </div>
-
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={next}
-              className="rounded-full"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </Button>
-          </div>
+            </>
+          ) : (
+            <div className="text-center text-muted-foreground">No testimonials available.</div>
+          )}
         </div>
       </div>
     </section>

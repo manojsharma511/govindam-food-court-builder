@@ -5,17 +5,36 @@ import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/store/cartStore';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import api from '@/lib/api';
 
 const CartPage = () => {
   const { items, updateQuantity, removeItem, clearCart, getTotalPrice } = useCartStore();
   const { toast } = useToast();
+  const { user } = useAuth(); // Import useAuth
+  const navigate = useNavigate();
 
-  const handleCheckout = () => {
-    toast({
-      title: 'Order Placed!',
-      description: 'Your order has been successfully placed. You will receive a confirmation shortly.',
-    });
-    clearCart();
+  const handleCheckout = async () => {
+    if (!user) {
+      toast({ title: "Login Required", description: "Please login to place an order", variant: "destructive" });
+      navigate('/login');
+      return;
+    }
+
+    try {
+      await api.post('/orders', {
+        items: items,
+        totalAmount: getTotalPrice()
+      });
+      toast({
+        title: 'Order Placed!',
+        description: 'Your order has been successfully placed. You will receive a confirmation shortly.',
+      });
+      clearCart();
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to place order", variant: "destructive" });
+    }
   };
 
   const deliveryFee = items.length > 0 ? 50 : 0;

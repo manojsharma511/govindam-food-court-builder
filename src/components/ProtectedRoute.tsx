@@ -26,9 +26,9 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
   if (requiredRole) {
     const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
     const hasRequiredRole = role && roles.includes(role);
-    
+
     // Super admin has access to everything
-    if (role !== 'super_admin' && !hasRequiredRole) {
+    if (role !== 'SUPER_ADMIN' && !hasRequiredRole) {
       return <Navigate to="/" replace />;
     }
   }

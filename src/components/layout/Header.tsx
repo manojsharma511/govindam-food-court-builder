@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingCart, User, Phone, LogOut, ChefHat, LayoutDashboard } from 'lucide-react';
+import { Menu, X, ShoppingCart, User, Phone, LogOut, ChefHat, LayoutDashboard, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/store/cartStore';
 import { useAuth } from '@/contexts/AuthContext';
@@ -149,6 +149,12 @@ export const Header = () => {
                       My Orders
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/my-bookings" className="cursor-pointer">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      My Bookings
+                    </Link>
+                  </DropdownMenuItem>
                   {(isAdmin || isSuperAdmin) && (
                     <>
                       <DropdownMenuSeparator />
@@ -242,6 +248,12 @@ export const Header = () => {
                       <Button variant="outline" className="w-full gap-2">
                         <ChefHat className="w-4 h-4" />
                         My Orders
+                      </Button>
+                    </Link>
+                    <Link to="/my-bookings">
+                      <Button variant="outline" className="w-full gap-2">
+                        <Calendar className="w-4 h-4" />
+                        My Bookings
                       </Button>
                     </Link>
                     {(isAdmin || isSuperAdmin) && (

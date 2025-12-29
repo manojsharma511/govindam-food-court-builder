@@ -6,8 +6,8 @@ import { Layout } from '@/components/layout/Layout';
 const galleryImages = [
   {
     id: 1,
-    src: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800',
-    alt: 'Restaurant Interior',
+    src: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3',
+    alt: 'Grand Lobby',
     category: 'ambiance',
   },
   {
@@ -36,8 +36,8 @@ const galleryImages = [
   },
   {
     id: 6,
-    src: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800',
-    alt: 'Fine Dining',
+    src: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3',
+    alt: 'Rooftop Pool',
     category: 'ambiance',
   },
   {
@@ -48,8 +48,8 @@ const galleryImages = [
   },
   {
     id: 8,
-    src: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800',
-    alt: 'Restaurant View',
+    src: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-4.0.3',
+    alt: 'Luxury Spa',
     category: 'ambiance',
   },
   {
@@ -66,9 +66,9 @@ const galleryImages = [
   },
   {
     id: 11,
-    src: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800',
-    alt: 'Indian Thali',
-    category: 'food',
+    src: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3',
+    alt: 'Premium Suite',
+    category: 'ambiance',
   },
   {
     id: 12,
@@ -114,7 +114,7 @@ const GalleryPage = () => {
             </h1>
             <div className="ornament-line-long mx-auto" />
             <p className="text-muted-foreground max-w-2xl mx-auto mt-6 text-lg">
-              Take a visual tour through our restaurant, discover our signature dishes, 
+              Take a visual tour through our restaurant, discover our signature dishes,
               and get a glimpse of the magic that happens in our kitchen.
             </p>
           </motion.div>
@@ -129,11 +129,10 @@ const GalleryPage = () => {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                  selectedCategory === category.id
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === category.id
                     ? 'bg-primary text-primary-foreground shadow-gold'
                     : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
-                }`}
+                  }`}
               >
                 {category.label}
               </button>

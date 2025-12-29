@@ -5,7 +5,7 @@ import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import api from '@/lib/api';
 import { contactMessageSchema, formatValidationErrors } from '@/lib/validations';
 
 const contactInfo = [
@@ -51,24 +51,14 @@ const ContactPage = () => {
         throw new Error(formatValidationErrors(validationResult.error));
       }
 
-      const { error } = await supabase
-        .from('contact_messages')
-        .insert({
-          name: data.name,
-          email: data.email,
-          phone: data.phone || null,
-          subject: data.subject || null,
-          message: data.message,
-        });
-
-      if (error) throw error;
+      await api.post('/contact', data);
     },
   });
 
   const validateField = (name: string, value: string) => {
     const partialData = { ...formData, [name]: value };
     const result = contactMessageSchema.safeParse(partialData);
-    
+
     if (!result.success) {
       const fieldError = result.error.errors.find((e) => e.path[0] === name);
       if (fieldError) {
@@ -91,7 +81,7 @@ const ContactPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Final validation
     const validationResult = contactMessageSchema.safeParse(formData);
     if (!validationResult.success) {
@@ -109,7 +99,7 @@ const ContactPage = () => {
       });
       return;
     }
-    
+
     try {
       await sendMessageMutation.mutateAsync(formData);
       toast({
@@ -153,7 +143,7 @@ const ContactPage = () => {
             </h1>
             <div className="ornament-line-long mx-auto" />
             <p className="text-muted-foreground max-w-2xl mx-auto mt-6 text-lg">
-              Have questions or want to make a reservation? We'd love to hear from you. 
+              Have questions or want to make a reservation? We'd love to hear from you.
               Reach out and we'll respond as soon as possible.
             </p>
           </motion.div>
@@ -187,9 +177,8 @@ const ContactPage = () => {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors ${
-                        errors.name ? 'border-destructive' : 'border-border'
-                      }`}
+                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors ${errors.name ? 'border-destructive' : 'border-border'
+                        }`}
                       placeholder="John Doe"
                     />
                     {errors.name && (
@@ -206,9 +195,8 @@ const ContactPage = () => {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors ${
-                        errors.email ? 'border-destructive' : 'border-border'
-                      }`}
+                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors ${errors.email ? 'border-destructive' : 'border-border'
+                        }`}
                       placeholder="john@example.com"
                     />
                     {errors.email && (
@@ -227,9 +215,8 @@ const ContactPage = () => {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors ${
-                        errors.phone ? 'border-destructive' : 'border-border'
-                      }`}
+                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors ${errors.phone ? 'border-destructive' : 'border-border'
+                        }`}
                       placeholder="+91 98765 43210"
                     />
                     {errors.phone && (
@@ -244,9 +231,8 @@ const ContactPage = () => {
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground focus:outline-none focus:border-primary transition-colors ${
-                        errors.subject ? 'border-destructive' : 'border-border'
-                      }`}
+                      className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground focus:outline-none focus:border-primary transition-colors ${errors.subject ? 'border-destructive' : 'border-border'
+                        }`}
                     >
                       <option value="">Select a subject</option>
                       <option value="reservation">Table Reservation</option>
@@ -270,9 +256,8 @@ const ContactPage = () => {
                     onChange={handleChange}
                     required
                     rows={5}
-                    className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors resize-none ${
-                      errors.message ? 'border-destructive' : 'border-border'
-                    }`}
+                    className={`w-full px-4 py-3 bg-muted border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors resize-none ${errors.message ? 'border-destructive' : 'border-border'
+                      }`}
                     placeholder="How can we help you?"
                   />
                   {errors.message && (
@@ -280,10 +265,10 @@ const ContactPage = () => {
                   )}
                 </div>
 
-                <Button 
-                  type="submit" 
-                  variant="hero" 
-                  size="lg" 
+                <Button
+                  type="submit"
+                  variant="hero"
+                  size="lg"
                   className="w-full md:w-auto gap-2"
                   disabled={sendMessageMutation.isPending}
                 >

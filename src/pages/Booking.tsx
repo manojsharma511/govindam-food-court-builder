@@ -7,6 +7,25 @@ import { useToast } from '@/hooks/use-toast';
 import { useCreateBooking, BookingType } from '@/hooks/useBookings';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { DynamicHero, HeroSlide } from '@/components/sections/DynamicHero';
+
+const BOOKING_SLIDES: HeroSlide[] = [
+  {
+    image: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3",
+    title: "Reserve Your <span class='text-primary'>Table</span>",
+    subtitle: "Experience world-class dining with the perfect ambiance."
+  },
+  {
+    image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800",
+    title: "Celebrate <span class='text-primary'>Moments</span>",
+    subtitle: "From intimate dinners to grand celebrations, we make it special."
+  },
+  {
+    image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800",
+    title: "Taste of <span class='text-primary'>Perfection</span>",
+    subtitle: "Culinary masterpieces waiting for you."
+  }
+];
 
 const BookingPage = () => {
   const { toast } = useToast();
@@ -44,7 +63,7 @@ const BookingPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user) {
       toast({
         title: 'Login Required',
@@ -70,8 +89,8 @@ const BookingPage = () => {
         guestName: formData.name,
         guestEmail: formData.email,
         guestPhone: formData.phone,
-        specialRequests: formData.occasion 
-          ? `Occasion: ${formData.occasion}. ${formData.specialRequests}` 
+        specialRequests: formData.occasion
+          ? `Occasion: ${formData.occasion}. ${formData.specialRequests}`
           : formData.specialRequests,
       });
 
@@ -95,30 +114,11 @@ const BookingPage = () => {
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="pt-32 pb-16 bg-gradient-hero relative overflow-hidden">
-        <div className="absolute inset-0 pattern-overlay" />
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <span className="text-primary text-sm font-medium uppercase tracking-widest">
-              Reserve Your Spot
-            </span>
-            <h1 className="text-5xl md:text-6xl font-heading font-bold mt-4 mb-6">
-              <span className="text-foreground">Book a</span>{' '}
-              <span className="text-gradient-gold">Table</span>
-            </h1>
-            <div className="ornament-line-long mx-auto" />
-            <p className="text-muted-foreground max-w-2xl mx-auto mt-6 text-lg">
-              Reserve your table for an unforgettable dining experience. 
-              Perfect for family gatherings, romantic dinners, or celebrations.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+      <DynamicHero
+        slides={BOOKING_SLIDES}
+        badgeText="Reservations"
+        buttonText="View Menu"
+      />
 
       {/* Booking Form */}
       <section className="py-24 bg-background">
@@ -129,19 +129,17 @@ const BookingPage = () => {
               {[1, 2, 3].map((s) => (
                 <div key={s} className="flex items-center">
                   <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${
-                      step >= s
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${step >= s
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted text-muted-foreground'
-                    }`}
+                      }`}
                   >
                     {step > s ? <CheckCircle className="w-5 h-5" /> : s}
                   </div>
                   {s < 3 && (
                     <div
-                      className={`w-20 h-1 mx-2 transition-colors ${
-                        step > s ? 'bg-primary' : 'bg-muted'
-                      }`}
+                      className={`w-20 h-1 mx-2 transition-colors ${step > s ? 'bg-primary' : 'bg-muted'
+                        }`}
                     />
                   )}
                 </div>
@@ -208,11 +206,10 @@ const BookingPage = () => {
                           key={time}
                           type="button"
                           onClick={() => setFormData({ ...formData, time })}
-                          className={`py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
-                            formData.time === time
+                          className={`py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${formData.time === time
                               ? 'bg-primary text-primary-foreground shadow-gold'
                               : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
-                          }`}
+                            }`}
                         >
                           {time}
                         </button>
@@ -331,10 +328,10 @@ const BookingPage = () => {
                     >
                       Back
                     </Button>
-                    <Button 
-                      type="submit" 
-                      variant="hero" 
-                      size="lg" 
+                    <Button
+                      type="submit"
+                      variant="hero"
+                      size="lg"
                       className="flex-1"
                       disabled={createBooking.isPending}
                     >

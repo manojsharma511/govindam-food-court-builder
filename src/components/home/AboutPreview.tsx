@@ -3,6 +3,14 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Award, Users, Clock, Utensils } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+interface AboutProps {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  body?: string; // Alias for description from some seed data
+  badgeText?: string;
+}
+
 const features = [
   {
     icon: Award,
@@ -26,7 +34,15 @@ const features = [
   },
 ];
 
-export const AboutPreview = () => {
+export const AboutPreview = ({
+  title = "<span class='text-foreground'>A Legacy of</span><br /><span class='text-gradient-gold'>Authentic Flavors</span>",
+  subtitle = "Our Story",
+  description = "Since 1995, Hotel Govindam has been a beacon of authentic Indian cuisine. Our journey began with a simple mission: to share the rich tapestry of Indian flavors with food lovers everywhere.\n\nEvery dish we serve is a testament to our commitment to quality, tradition, and the art of Indian cooking.",
+  body,
+  badgeText = "25+"
+}: AboutProps) => {
+  const contentDescription = description || body || "Since 1995, Hotel Govindam has been a beacon of authentic Indian cuisine...";
+
   return (
     <section className="py-24 bg-card relative overflow-hidden">
       <div className="container mx-auto px-4">
@@ -81,7 +97,7 @@ export const AboutPreview = () => {
               transition={{ delay: 0.3, type: 'spring' }}
               className="absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-gold rounded-full flex flex-col items-center justify-center shadow-gold-lg"
             >
-              <span className="text-3xl font-heading font-bold text-primary-foreground">25+</span>
+              <span className="text-3xl font-heading font-bold text-primary-foreground">{badgeText}</span>
               <span className="text-xs text-primary-foreground/80 uppercase tracking-wider">Years</span>
             </motion.div>
           </motion.div>
@@ -95,27 +111,15 @@ export const AboutPreview = () => {
           >
             <div>
               <span className="text-primary text-sm font-medium uppercase tracking-widest">
-                Our Story
+                {subtitle}
               </span>
-              <h2 className="text-4xl md:text-5xl font-heading font-bold mt-4 mb-6">
-                <span className="text-foreground">A Legacy of</span>
-                <br />
-                <span className="text-gradient-gold">Authentic Flavors</span>
-              </h2>
+              <h2 className="text-4xl md:text-5xl font-heading font-bold mt-4 mb-6" dangerouslySetInnerHTML={{ __html: title }} />
               <div className="ornament-line" />
             </div>
 
-            <p className="text-muted-foreground text-lg leading-relaxed">
-              Since 1995, Hotel Govindam has been a beacon of authentic Indian cuisine. 
-              Our journey began with a simple mission: to share the rich tapestry of 
-              Indian flavors with food lovers everywhere.
-            </p>
-
-            <p className="text-muted-foreground leading-relaxed">
-              Every dish we serve is a testament to our commitment to quality, tradition, 
-              and the art of Indian cooking. From the aromatic spices of the North to the 
-              coastal flavors of the South, we bring India's diverse culinary heritage to your plate.
-            </p>
+            <div className="text-muted-foreground text-lg leading-relaxed whitespace-pre-line">
+              {contentDescription}
+            </div>
 
             {/* Features Grid */}
             <div className="grid grid-cols-2 gap-6">

@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REJECTED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(USER)
+  permissions String[] @default([])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+  bookings  Booking[]
+}
+
+model MenuCategory {
+  id        String      @id @default(uuid())
+  name      String
+  icon      String?
+  sortOrder Int         @default(0)
+  items     MenuItem[]
+}
+
+model MenuItem {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  price       Decimal
+  imageUrl    String?
+  isVeg       Boolean      @default(true)
+  isAvailable Boolean      @default(true)
+  categoryId  String
+  category    MenuCategory @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  userId      String?
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  user        User?       @relation(fields: [userId], references: [id])
+  items       OrderItem[]
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String
+  menuItemId  String
+  quantity    Int
+  price       Decimal
+
+  order       Order    @relation(fields: [orderId], references: [id])
+  menuItem    MenuItem @relation(fields: [menuItemId], references: [id])
+}
+
+model Booking {
+  id        String        @id @default(uuid())
+  userId    String?
+  date      DateTime
+  time      String
+  guests    Int
+  status    BookingStatus @default(PENDING)
+  
+  // Guest Details for the specific booking
+  name      String?
+  email     String?
+  phone     String?
+  specialRequests String?
+  occasion  String?
+
+  createdAt DateTime      @default(now())
+  
+  user      User?         @relation(fields: [userId], references: [id])
+}
+
+model Page {
+  id          String        @id @default(uuid())
+  slug        String        @unique
+  title       String
+  sections    PageSection[]
+  isVisible   Boolean       @default(true)
+  isSystem    Boolean       @default(false)
+}
+
+model PageSection {
+  id        String  @id @default(uuid())
+  pageId    String
+  type      String
+  content   Json
+  isVisible Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  page      Page    @relation(fields: [pageId], references: [id])
+}
+
+model ContactSubmission {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model ThemeSettings {
+  id                String @id @default(uuid())
+  primaryColor      String @default("#eab308")
+  secondaryColor    String @default("#1a1a1a")
+  accentColor       String @default("#ffffff")
+  backgroundColor   String @default("#ffffff")
+  textColor         String @default("#000000")
+  fontFamilyHeading String @default("Inter")
+  fontFamilyBody    String @default("Inter")
+  borderRadius      String @default("0.5rem")
+  shadowIntensity   String @default("medium")
+  updatedAt         DateTime @updatedAt
+}
+
+model GlobalSettings {
+  id             String @id @default(uuid())
+  siteName       String @default("Hotel Govindam")
+  maintenanceMode Boolean @default(false)
+  ordersEnabled  Boolean @default(true)
+  bookingsEnabled Boolean @default(true)
+  contactEmail   String?
+  contactPhone   String?
+  address        String?
+  socialLinks    Json? 
+  businessHours  Json?
+  updatedAt      DateTime @updatedAt
+}

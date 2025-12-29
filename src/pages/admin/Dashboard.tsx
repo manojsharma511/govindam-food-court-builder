@@ -31,12 +31,12 @@ import AdminUsers from './AdminUsers';
 import AdminSettings from './AdminSettings';
 
 const sidebarLinks = [
-  { href: '/admin', icon: LayoutDashboard, label: 'Overview', exact: true },
-  { href: '/admin/orders', icon: ChefHat, label: 'Orders' },
-  { href: '/admin/menu', icon: UtensilsCrossed, label: 'Menu' },
-  { href: '/admin/bookings', icon: Calendar, label: 'Bookings' },
-  { href: '/admin/gallery', icon: Image, label: 'Gallery' },
-  { href: '/admin/messages', icon: MessageSquare, label: 'Messages' },
+  { href: '/admin', icon: LayoutDashboard, label: 'Overview', exact: true, permission: 'view_analytics' }, // 'view_analytics' is loosely the base permission
+  { href: '/admin/orders', icon: ChefHat, label: 'Orders', permission: 'manage_orders' },
+  { href: '/admin/menu', icon: UtensilsCrossed, label: 'Menu', permission: 'manage_menu' },
+  { href: '/admin/bookings', icon: Calendar, label: 'Bookings', permission: 'manage_bookings' },
+  { href: '/admin/gallery', icon: Image, label: 'Gallery', permission: 'manage_cms' },
+  { href: '/admin/messages', icon: MessageSquare, label: 'Messages', permission: 'manage_cms' },
   { href: '/admin/users', icon: Users, label: 'Users', superAdminOnly: true },
   { href: '/admin/settings', icon: Settings, label: 'Settings', superAdminOnly: true },
 ];
@@ -52,9 +52,21 @@ const AdminDashboard = () => {
     navigate('/');
   };
 
-  const filteredLinks = sidebarLinks.filter(
-    (link) => !link.superAdminOnly || isSuperAdmin
-  );
+  const filteredLinks = sidebarLinks.filter((link) => {
+    // 1. Super Admin sees everything
+    if (isSuperAdmin) return true;
+
+    // 2. Strict Super Admin Only
+    if (link.superAdminOnly) return false;
+
+    // 3. Admin: Check Permission
+    // If no explicit permission tag, show it (e.g. Dashboard base)
+    // Or if they have the permission
+    if (!link.permission) return true;
+    if (user?.permissions?.includes(link.permission)) return true;
+
+    return false;
+  });
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) {

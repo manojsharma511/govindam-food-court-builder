@@ -1,25 +1,71 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, Loader2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { MenuCard } from '@/components/menu/MenuCard';
-import { menuItems, menuCategories } from '@/data/menuData';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import api from '@/lib/api';
+import { useToast } from '@/hooks/use-toast';
+import { MenuItem } from '@/store/cartStore';
+
+interface Category {
+  id: string;
+  name: string;
+  icon: string | null;
+  items: any[];
+}
 
 const MenuPage = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [vegFilter, setVegFilter] = useState<'all' | 'veg' | 'non-veg'>('all');
+  const { toast } = useToast();
 
-  const filteredItems = menuItems.filter((item) => {
+  useEffect(() => {
+    const fetchMenu = async () => {
+      try {
+        // Since API might not be running yet, we handle error gracefully or rely on fallback if needed
+        // But for production build we assume API works.
+        const { data } = await api.get('/menu');
+        setCategories(data);
+      } catch (error) {
+        console.error('Failed to fetch menu:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load menu from server.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMenu();
+  }, [toast]);
+
+  // Flatten items for display
+  const allItems: MenuItem[] = categories.flatMap(cat =>
+    cat.items.map(item => ({
+      id: item.id,
+      name: item.name,
+      description: item.description || '',
+      price: Number(item.price), // ensure number
+      image: item.imageUrl || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=400',
+      category: cat.id,
+      isVeg: item.isVeg,
+      isAvailable: item.isAvailable
+    }))
+  );
+
+  const filteredItems = allItems.filter((item) => {
     const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesVeg = vegFilter === 'all' || 
-      (vegFilter === 'veg' && item.isVeg) || 
+    const matchesVeg = vegFilter === 'all' ||
+      (vegFilter === 'veg' && item.isVeg) ||
       (vegFilter === 'non-veg' && !item.isVeg);
-    
+
     return matchesCategory && matchesSearch && matchesVeg;
   });
 
@@ -43,7 +89,7 @@ const MenuPage = () => {
             </h1>
             <div className="ornament-line-long mx-auto" />
             <p className="text-muted-foreground max-w-2xl mx-auto mt-6 text-lg">
-              From appetizing starters to delectable desserts, discover the authentic flavors 
+              From appetizing starters to delectable desserts, discover the authentic flavors
               of India crafted with love and tradition.
             </p>
           </motion.div>
@@ -97,7 +143,7 @@ const MenuPage = () => {
             >
               All Items
             </Button>
-            {menuCategories.map((category) => (
+            {categories.map((category) => (
               <Button
                 key={category.id}
                 variant={selectedCategory === category.id ? 'default' : 'ghost'}
@@ -115,7 +161,11 @@ const MenuPage = () => {
       {/* Menu Grid */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          {filteredItems.length > 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center py-20">
+              <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            </div>
+          ) : filteredItems.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredItems.map((item, index) => (
                 <motion.div

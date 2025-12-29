@@ -4,17 +4,28 @@ import { Layout } from '@/components/layout/Layout';
 import { useUserOrders, Order } from '@/hooks/useOrders';
 import { format } from 'date-fns';
 
-const statusConfig = {
-  pending: { icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-500/10', label: 'Pending' },
-  confirmed: { icon: CheckCircle, color: 'text-blue-500', bg: 'bg-blue-500/10', label: 'Confirmed' },
-  preparing: { icon: Clock, color: 'text-orange-500', bg: 'bg-orange-500/10', label: 'Preparing' },
-  ready: { icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-500/10', label: 'Ready' },
-  delivered: { icon: CheckCircle, color: 'text-primary', bg: 'bg-primary/10', label: 'Delivered' },
-  cancelled: { icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/10', label: 'Cancelled' },
+const statusConfig: Record<string, { icon: any, color: string, bg: string, label: string }> = {
+  PENDING: { icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-500/10', label: 'Pending' },
+  PREPARING: { icon: Clock, color: 'text-orange-500', bg: 'bg-orange-500/10', label: 'Preparing' },
+  READY: { icon: CheckCircle, color: 'text-green-500', bg: 'bg-green-500/10', label: 'Ready' },
+  COMPLETED: { icon: CheckCircle, color: 'text-primary', bg: 'bg-primary/10', label: 'Completed' },
+  CANCELLED: { icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/10', label: 'Cancelled' },
 };
 
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Eye, IndianRupee } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+
 const OrderCard = ({ order }: { order: Order }) => {
-  const status = statusConfig[order.status];
+  const status = statusConfig[order.status] || statusConfig.PENDING;
   const StatusIcon = status.icon;
 
   return (
@@ -35,13 +46,13 @@ const OrderCard = ({ order }: { order: Order }) => {
       </div>
 
       <div className="space-y-3 mb-4">
-        {order.order_items?.map((item) => (
+        {order.items?.map((item) => (
           <div key={item.id} className="flex justify-between items-center">
             <div>
-              <p className="text-sm text-foreground">{item.item_name}</p>
+              <p className="text-sm text-foreground">{item.menuItem?.name || 'Unknown Item'}</p>
               <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
             </div>
-            <p className="text-sm font-medium text-primary">₹{item.total_price}</p>
+            <p className="text-sm font-medium text-primary">₹{item.price * item.quantity}</p>
           </div>
         ))}
       </div>
@@ -49,13 +60,66 @@ const OrderCard = ({ order }: { order: Order }) => {
       <div className="pt-4 border-t border-border flex justify-between items-center">
         <div>
           <p className="text-xs text-muted-foreground">
-            {format(new Date(order.created_at), 'MMM dd, yyyy • hh:mm a')}
+            {format(new Date(order.createdAt), 'MMM dd, yyyy • hh:mm a')}
           </p>
+          <p className="text-lg font-heading font-bold text-primary mt-1">₹{order.totalAmount}</p>
         </div>
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground">Total</p>
-          <p className="text-lg font-heading font-bold text-primary">₹{order.total_amount}</p>
-        </div>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Eye className="w-4 h-4" />
+              Details
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Order Summary</DialogTitle>
+              <DialogDescription>
+                Order #{order.id}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <div className="flex justify-between items-center bg-muted/50 p-3 rounded-lg">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">Status</p>
+                  <Badge variant="secondary" className={`${status.bg} ${status.color} border-0`}>{status.label}</Badge>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-medium text-muted-foreground">Total Amount</p>
+                  <p className="text-lg font-bold text-primary flex items-center justify-end">
+                    <IndianRupee className="w-4 h-4" />
+                    {order.totalAmount}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold mb-2">Items Ordered</h4>
+                <div className="border rounded-md divide-y">
+                  {order.items?.map((item) => (
+                    <div key={item.id} className="p-3 flex justify-between items-center text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-muted-foreground">{item.quantity}x</span>
+                        <span>{item.menuItem?.name}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <IndianRupee className="w-3 h-3 text-muted-foreground" />
+                        {item.price * item.quantity}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">Order Date</p>
+                  <p>{format(new Date(order.createdAt), 'PPpp')}</p>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </motion.div>
   );
