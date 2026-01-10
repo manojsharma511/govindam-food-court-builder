@@ -42,7 +42,7 @@ const AdminGallery = () => {
               placeholder="Upload or enter URL"
             />
           </div>
-          <Button onClick={handleAdd} className="w-full sm:w-auto">
+          <Button onClick={handleAdd} variant="hero" className="w-full sm:w-auto shadow-gold">
             <Upload className="w-4 h-4 mr-2" />
             Add Image to Gallery
           </Button>
@@ -53,8 +53,8 @@ const AdminGallery = () => {
             <div key={img.id} className="group relative aspect-square rounded-lg overflow-hidden border border-border">
               <img src={img.url} alt={img.title} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <Button variant="destructive" size="icon" onClick={() => handleDelete(img.id)}>
-                  <Trash2 className="w-4 h-4" />
+                <Button variant="destructive" size="icon" className="scale-125 shadow-xl border-2 border-white/20" onClick={() => handleDelete(img.id)}>
+                  <Trash2 className="w-5 h-5 text-white" />
                 </Button>
               </div>
             </div>

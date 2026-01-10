@@ -51,11 +51,11 @@ interface Order {
 }
 
 const statusColors = {
-  PENDING: 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30',
-  PREPARING: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-  READY: 'bg-green-500/20 text-green-400 border border-green-500/30',
-  COMPLETED: 'bg-muted text-muted-foreground border border-border',
-  CANCELLED: 'bg-destructive/20 text-destructive-foreground border border-destructive/30',
+  PENDING: 'bg-yellow-500/15 text-yellow-500 border border-yellow-500/30 shadow-[0_0_10px_rgba(234,179,8,0.1)]',
+  PREPARING: 'bg-blue-500/15 text-blue-500 border border-blue-500/30 shadow-[0_0_10px_rgba(59,130,246,0.1)]',
+  READY: 'bg-green-500/15 text-green-500 border border-green-500/30 shadow-[0_0_10px_rgba(34,197,94,0.1)]',
+  COMPLETED: 'bg-primary/10 text-primary border border-primary/20 shadow-none',
+  CANCELLED: 'bg-destructive/15 text-destructive border border-destructive/30',
 };
 
 const AdminOrders = () => {

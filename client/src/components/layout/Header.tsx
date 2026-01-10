@@ -96,15 +96,15 @@ export const Header = () => {
                 className={cn(
                   'relative text-sm font-medium tracking-wide uppercase transition-colors duration-300',
                   location.pathname === link.href
-                    ? 'text-primary'
-                    : 'text-foreground/80 hover:text-primary'
+                    ? 'text-primary font-bold drop-shadow-sm'
+                    : 'text-foreground/90 hover:text-primary hover:drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]'
                 )}
               >
                 {link.label}
                 {location.pathname === link.href && (
                   <motion.div
                     layoutId="activeNav"
-                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-gold"
+                    className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-gold shadow-[0_0_10px_rgba(234,179,8,0.5)]"
                   />
                 )}
               </Link>
@@ -175,15 +175,15 @@ export const Header = () => {
               </DropdownMenu>
             ) : (
               <Link to="/auth" className="hidden md:block">
-                <Button variant="outline" size="sm" className="gap-2">
-                  <User className="w-4 h-4" />
+                <Button variant="outline" size="sm" className="gap-2 border-primary/50 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300">
+                  <User className="w-4 h-4 text-primary group-hover:text-primary-foreground" />
                   Login
                 </Button>
               </Link>
             )}
 
             <Link to="/booking" className="hidden md:block">
-              <Button variant="hero" size="sm">
+              <Button variant="hero" size="sm" className="shadow-gold hover:shadow-gold-lg border border-primary/20">
                 Book Table
               </Button>
             </Link>

@@ -41,7 +41,7 @@ export const MenuCard = ({ item }: MenuCardProps) => {
           alt={item.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
-        
+
         {/* Veg/Non-Veg Badge */}
         <div
           className={cn(
@@ -90,7 +90,7 @@ export const MenuCard = ({ item }: MenuCardProps) => {
             <Button
               onClick={handleAdd}
               variant="outline"
-              className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+              className="w-full border-primary/50 hover:bg-primary hover:text-primary-foreground text-primary transition-all duration-300 shadow-sm"
               disabled={!item.isAvailable}
             >
               {item.isAvailable ? 'Add to Cart' : 'Unavailable'}

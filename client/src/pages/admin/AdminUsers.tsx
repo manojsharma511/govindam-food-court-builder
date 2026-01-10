@@ -229,7 +229,7 @@ const AdminUsers = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
+              <Button type="submit" variant="hero" className="w-full shadow-gold" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingUser ? 'Update User' : 'Create Admin')}
               </Button>
             </form>
@@ -314,7 +314,7 @@ const AdminUsers = () => {
                         size="icon"
                         onClick={() => openEditDialog(user)}
                       >
-                        <Pencil className="w-4 h-4 text-muted-foreground" />
+                        <Pencil className="w-4 h-4" />
                       </Button>
                       {user.role !== 'SUPER_ADMIN' && (
                         <Button

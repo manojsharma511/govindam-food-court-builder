@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -192,39 +193,65 @@ const AdminMenu = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-end sm:items-center gap-4 mb-8">
         <div>
-          <h2 className="text-2xl font-heading font-bold text-foreground">Menu Management</h2>
+          <h2 className="text-3xl font-heading font-bold text-foreground mb-2">Menu Management</h2>
           <p className="text-muted-foreground">Manage your food menu and categories</p>
         </div>
 
-        <div className="flex gap-2">
-          <Button
-            variant={activeTab === 'categories' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('categories')}
-          >
-            Categories
-          </Button>
-          <Button
-            variant={activeTab === 'items' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('items')}
-          >
-            Items
-          </Button>
+        <div className="flex items-center gap-4">
+          {/* Animated Tab Switcher */}
+          <div className="relative bg-muted/50 p-1 rounded-full flex gap-1 border border-border">
+            <button
+              onClick={() => setActiveTab('items')}
+              className={`relative px-6 py-2 rounded-full text-sm font-medium transition-colors z-10 ${activeTab === 'items' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              {activeTab === 'items' && (
+                <motion.div
+                  layoutId="menuTab"
+                  className="absolute inset-0 bg-primary rounded-full shadow-gold"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                <Utensils className="w-4 h-4" />
+                Items
+              </span>
+            </button>
+            <button
+              onClick={() => setActiveTab('categories')}
+              className={`relative px-6 py-2 rounded-full text-sm font-medium transition-colors z-10 ${activeTab === 'categories' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              {activeTab === 'categories' && (
+                <motion.div
+                  layoutId="menuTab"
+                  className="absolute inset-0 bg-primary rounded-full shadow-gold"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                <span className="text-xs">📁</span>
+                Categories
+              </span>
+            </button>
+          </div>
         </div>
       </div>
 
       {activeTab === 'items' && (
         <>
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center bg-card p-4 rounded-xl border border-border shadow-sm mb-6">
+            <h3 className="font-semibold text-lg flex items-center gap-2">
+              <span className="text-primary text-xl">📋</span> Menu Items
+            </h3>
             <Dialog open={isItemDialogOpen} onOpenChange={(open) => {
               setIsItemDialogOpen(open);
               if (!open) setEditingItem(null);
             }}>
               <DialogTrigger asChild>
-                <Button className="gap-2" onClick={openAddItemDialog}>
+                <Button variant="hero" className="gap-2 shadow-gold" onClick={openAddItemDialog}>
                   <Plus className="w-4 h-4" />
-                  Add Item
+                  Add New Item
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-lg">
@@ -260,7 +287,7 @@ const AdminMenu = () => {
                     <div>
                       <label className="text-sm font-medium mb-1.5 block">Price (₹)</label>
                       <Input {...itemForm.register('price')} type="number" placeholder="250" />
-                      {itemForm.formState.errors.price && <p className="text-destructive text-xs">{itemForm.formState.errors.price.message}</p>}
+                      {itemForm.formState.errors.price && <p className="text-destructive text-xs">{itemForm.formState.errors.price.message as string}</p>}
                     </div>
 
                     <div>
@@ -292,7 +319,7 @@ const AdminMenu = () => {
                       <label className="text-sm">Available (Show on Menu)</label>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full" disabled={itemForm.formState.isSubmitting}>
+                  <Button type="submit" variant="hero" className="w-full shadow-gold" disabled={itemForm.formState.isSubmitting}>
                     {itemForm.formState.isSubmitting ? <Loader2 className="animate-spin" /> : (editingItem ? 'Update Item' : 'Add Item')}
                   </Button>
                 </form>
@@ -311,19 +338,21 @@ const AdminMenu = () => {
                       <Utensils className="w-8 h-8" />
                     </div>
                   )}
-                  <div className="absolute top-2 right-2 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                    <Button size="icon" className="h-8 w-8 bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border-0 shadow-sm" onClick={() => openEditItemDialog(item)}>
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button size="icon" className="h-8 w-8 bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border-0 shadow-sm" onClick={() => handleDeleteItem(item.id)}>
-                      <Trash2 className="w-4 h-4 text-red-400" />
-                    </Button>
-                  </div>
                   {!item.isAvailable && (
-                    <div className="absolute inset-0 bg-background/60 flex items-center justify-center pointer-events-none">
-                      <span className="bg-destructive text-destructive-foreground px-2 py-1 text-xs font-bold rounded transform rotate-12 border-2 border-white shadow-lg">UNAVAILABLE</span>
+                    <div className="absolute inset-0 bg-background/70 backdrop-blur-[2px] flex items-center justify-center rounded-t-xl z-20 pointer-events-none">
+                      <span className="bg-destructive/90 text-white px-4 py-1.5 text-xs font-bold rounded-full border border-destructive-foreground/20 shadow-lg tracking-wider uppercase">
+                        Currently Unavailable
+                      </span>
                     </div>
                   )}
+                  <div className="absolute top-0 right-0 p-2 flex gap-1 bg-gradient-to-l from-black/80 to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-30">
+                    <Button size="icon" className="h-8 w-8 bg-zinc-900 border border-zinc-700 hover:bg-primary hover:text-primary-foreground hover:border-primary text-white shadow-xl" onClick={() => openEditItemDialog(item)}>
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button size="icon" className="h-8 w-8 bg-zinc-900 border border-zinc-700 hover:bg-red-600 hover:text-white hover:border-red-600 text-red-500 shadow-xl" onClick={() => handleDeleteItem(item.id)}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
                 <div className="p-4 flex-1 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
@@ -353,10 +382,13 @@ const AdminMenu = () => {
 
       {activeTab === 'categories' && (
         <div className="space-y-4">
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center bg-card p-4 rounded-xl border border-border shadow-sm mb-6">
+            <h3 className="font-semibold text-lg flex items-center gap-2">
+              <span className="text-primary text-xl">📁</span> Meal Categories
+            </h3>
             <Dialog open={isCategoryDialogOpen} onOpenChange={setIsCategoryDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="gap-2"><Plus className="w-4 h-4" /> Add Category</Button>
+                <Button variant="hero" className="gap-2 shadow-gold"><Plus className="w-4 h-4" /> Add New Category</Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>Add Category</DialogTitle></DialogHeader>
@@ -373,7 +405,7 @@ const AdminMenu = () => {
                     <label className="text-sm font-medium mb-1">Sort Order</label>
                     <Input {...categoryForm.register('sortOrder')} type="number" placeholder="1" />
                   </div>
-                  <Button type="submit" className="w-full">Create</Button>
+                  <Button type="submit" variant="hero" className="w-full shadow-gold">Create Category</Button>
                 </form>
               </DialogContent>
             </Dialog>
@@ -382,7 +414,7 @@ const AdminMenu = () => {
             {categories.map((cat) => (
               <div key={cat.id} className="bg-card p-4 rounded-xl border border-border flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <span className="text-2xl bg-muted w-12 h-12 flex items-center justify-center rounded-lg">{cat.icon || '📁'}</span>
+                  <span className="text-2xl bg-secondary/50 w-12 h-12 flex items-center justify-center rounded-lg">{cat.icon || '📁'}</span>
                   <div>
                     <h3 className="font-bold">{cat.name}</h3>
                     <p className="text-sm text-muted-foreground">{cat.items.length} items</p>

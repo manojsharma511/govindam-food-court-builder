@@ -135,7 +135,7 @@ const AdminBookings = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={booking.status === 'CONFIRMED' ? 'default' : 'secondary'}>
+                    <Badge className={booking.status === 'CONFIRMED' ? 'bg-green-500/15 text-green-500 hover:bg-green-500/25 border-green-500/20 shadow-[0_0_10px_rgba(34,197,94,0.1)]' : 'bg-secondary/50 text-muted-foreground border-border hover:bg-secondary'}>
                       {booking.status}
                     </Badge>
                   </TableCell>

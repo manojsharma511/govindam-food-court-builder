@@ -102,8 +102,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             {!value ? (
                 <div
                     className={cn(
-                        "flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer transition-colors bg-muted/30 hover:bg-muted/50",
-                        dragActive ? "border-primary bg-primary/5" : "border-border",
+                        "flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300",
+                        dragActive
+                            ? "border-primary bg-primary/10 shadow-gold"
+                            : "border-border bg-muted/20 hover:bg-muted/30 hover:border-primary/50",
                         isUploading && "pointer-events-none opacity-50"
                     )}
                     onClick={() => inputRef.current?.click()}
@@ -113,38 +115,40 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
                     onDrop={handleDrop}
                 >
                     {isUploading ? (
-                        <Loader2 className="w-8 h-8 animate-spin text-primary mb-2" />
+                        <Loader2 className="w-10 h-10 animate-spin text-primary mb-3" />
                     ) : (
-                        <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                        <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <Upload className="w-6 h-6 text-primary" />
+                        </div>
                     )}
-                    <p className="text-sm text-muted-foreground font-medium text-center px-4">
+                    <p className="text-sm font-medium text-foreground mb-1">
                         {isUploading ? "Uploading..." : placeholder}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground">
                         Or drag and drop (Max 5MB)
                     </p>
                 </div>
             ) : (
-                <div className="relative group rounded-lg overflow-hidden border border-border aspect-video bg-muted">
+                <div className="relative group rounded-xl overflow-hidden border border-border aspect-video bg-muted shadow-lg">
                     <img
                         src={value}
                         alt="Uploaded"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-sm">
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-sm">
                         <Button
                             type="button"
                             variant="secondary"
-                            size="sm"
                             onClick={() => inputRef.current?.click()}
+                            className="hover:scale-105"
                         >
                             Change
                         </Button>
                         <Button
                             type="button"
                             variant="destructive"
-                            size="sm"
                             onClick={() => onChange('')}
+                            className="hover:scale-105"
                         >
                             <X className="w-4 h-4 mr-1" />
                             Remove
@@ -154,13 +158,14 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
             )}
 
             {/* Fallback URL input */}
-            <div className="flex gap-2">
+            <div className="relative">
                 <Input
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     placeholder="Or enter image URL directly"
-                    className="text-xs font-mono"
+                    className="pl-9 font-mono text-xs bg-muted/30"
                 />
+                <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             </div>
         </div>
     );
