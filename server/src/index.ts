@@ -10,6 +10,7 @@ import adminRoutes from './routes/admin.routes';
 import orderRoutes from './routes/order.routes';
 import bookingRoutes from './routes/booking.routes';
 import contactRoutes from './routes/contact.routes';
+import uploadRoutes from './routes/upload.routes';
 
 dotenv.config();
 
@@ -33,6 +34,11 @@ app.use('/api', adminRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/upload', uploadRoutes);
+
+// Serve uploads directory specifically
+import path from 'path';
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

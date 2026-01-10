@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Upload, Trash2, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 const AdminGallery = () => {
   // Mock data for now as we don't have a Gallery model in schema yet
@@ -32,18 +33,18 @@ const AdminGallery = () => {
       <h2 className="text-2xl font-heading font-bold text-foreground">Gallery Management</h2>
 
       <div className="bg-card rounded-xl p-6 border border-border space-y-6">
-        <div className="flex gap-4 items-end">
-          <div className="flex-1 space-y-2">
-            <label className="text-sm font-medium">Add Image URL</label>
-            <Input
-              placeholder="https://..."
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Add Image</label>
+            <ImageUpload
               value={newUrl}
-              onChange={(e) => setNewUrl(e.target.value)}
+              onChange={(url) => setNewUrl(url)}
+              placeholder="Upload or enter URL"
             />
           </div>
-          <Button onClick={handleAdd}>
+          <Button onClick={handleAdd} className="w-full sm:w-auto">
             <Upload className="w-4 h-4 mr-2" />
-            Add Image
+            Add Image to Gallery
           </Button>
         </div>
 

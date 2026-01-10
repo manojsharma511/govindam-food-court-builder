@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import api from '@/lib/api';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 // Schema for Item
 const itemSchema = z.object({
@@ -263,8 +264,11 @@ const AdminMenu = () => {
                     </div>
 
                     <div>
-                      <label className="text-sm font-medium mb-1.5 block">Image URL</label>
-                      <Input {...itemForm.register('imageUrl')} placeholder="https://..." />
+                      <label className="text-sm font-medium mb-1.5 block">Image</label>
+                      <ImageUpload
+                        value={itemForm.watch('imageUrl')}
+                        onChange={(url) => itemForm.setValue('imageUrl', url)}
+                      />
                     </div>
 
                     <div className="col-span-2">
@@ -308,11 +312,11 @@ const AdminMenu = () => {
                     </div>
                   )}
                   <div className="absolute top-2 right-2 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                    <Button size="icon" variant="secondary" className="h-8 w-8" onClick={() => openEditItemDialog(item)}>
+                    <Button size="icon" className="h-8 w-8 bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border-0 shadow-sm" onClick={() => openEditItemDialog(item)}>
                       <Pencil className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" variant="secondary" className="h-8 w-8" onClick={() => handleDeleteItem(item.id)}>
-                      <Trash2 className="w-4 h-4 text-destructive" />
+                    <Button size="icon" className="h-8 w-8 bg-black/60 hover:bg-black/80 text-white backdrop-blur-md border-0 shadow-sm" onClick={() => handleDeleteItem(item.id)}>
+                      <Trash2 className="w-4 h-4 text-red-400" />
                     </Button>
                   </div>
                   {!item.isAvailable && (
