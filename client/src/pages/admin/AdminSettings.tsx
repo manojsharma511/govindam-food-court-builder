@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import api from '@/lib/api';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 interface PageSection {
   id: string;
@@ -261,9 +262,23 @@ const AdminSettings = () => {
 
                           {/* Preview/Actions Column - simplified for now */}
                           <div className="flex flex-col justify-end space-y-4">
-                            <div className="p-4 bg-yellow-50 rounded text-yellow-800 text-xs">
+                            <div className="p-4 bg-primary/10 rounded border border-primary/20 text-primary text-xs">
                               <strong>Tip:</strong> Changes to "content" JSON update the live site immediately after saving.
                             </div>
+
+                            <div className="space-y-2">
+                              <label className="text-xs font-medium text-muted-foreground uppercase">Quick Asset Upload</label>
+                              <ImageUpload
+                                onChange={(url) => {
+                                  navigator.clipboard.writeText(url);
+                                  toast({ title: "URL Copied", description: "Image URL copied to clipboard!" });
+                                }}
+                                placeholder="Upload for JSON URL"
+                                className="h-32"
+                              />
+                              <p className="text-[10px] text-muted-foreground text-center">URL will be copied to clipboard automatically.</p>
+                            </div>
+
                             <Button
                               className="w-full"
                               disabled={savingSections[section.id]}

@@ -229,7 +229,7 @@ const AdminUsers = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
+              <Button type="submit" variant="hero" className="w-full shadow-gold" disabled={isSubmitting}>
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingUser ? 'Update User' : 'Create Admin')}
               </Button>
             </form>
@@ -276,11 +276,11 @@ const AdminUsers = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${user.role === 'SUPER_ADMIN'
-                        ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
-                        : user.role === 'ADMIN'
-                          ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-                          : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${user.role === 'SUPER_ADMIN'
+                      ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                      : user.role === 'ADMIN'
+                        ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                        : 'bg-muted text-muted-foreground border-border'
                       }`}>
                       {user.role === 'SUPER_ADMIN' && <Shield className="w-3 h-3 mr-1" />}
                       {user.role.replace('_', ' ')}
@@ -314,7 +314,7 @@ const AdminUsers = () => {
                         size="icon"
                         onClick={() => openEditDialog(user)}
                       >
-                        <Pencil className="w-4 h-4 text-muted-foreground" />
+                        <Pencil className="w-4 h-4" />
                       </Button>
                       {user.role !== 'SUPER_ADMIN' && (
                         <Button

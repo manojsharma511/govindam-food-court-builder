@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
+import { cn } from '@/lib/utils';
 
 const galleryImages = [
   {
@@ -124,19 +125,31 @@ const GalleryPage = () => {
       {/* Filter Tabs */}
       <section className="py-8 bg-card border-b border-border sticky top-[72px] z-40">
         <div className="container mx-auto px-4">
-          <div className="flex gap-3 justify-center overflow-x-auto pb-2">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setSelectedCategory(category.id)}
-                className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === category.id
-                    ? 'bg-primary text-primary-foreground shadow-gold'
-                    : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
-                  }`}
-              >
-                {category.label}
-              </button>
-            ))}
+          <div className="flex justify-center w-full">
+            <div className="flex gap-2 overflow-x-auto pb-4 px-4 scrollbar-hide max-w-full items-center">
+              {categories.map((category) => {
+                const isActive = selectedCategory === category.id;
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={cn(
+                      "relative px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 border border-transparent whitespace-nowrap",
+                      isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground bg-card/50 hover:bg-card border-border/50"
+                    )}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeGalleryFilter"
+                        className="absolute inset-0 bg-gradient-gold rounded-full shadow-gold"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    <span className="relative z-10">{category.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>

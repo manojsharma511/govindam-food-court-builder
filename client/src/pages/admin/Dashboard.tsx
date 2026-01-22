@@ -107,15 +107,28 @@ const AdminDashboard = () => {
                 key={link.href}
                 to={link.href}
                 onClick={() => setIsSidebarOpen(false)}
-                className={cn(
-                  'flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200',
-                  isActive(link.href, link.exact)
-                    ? 'bg-primary text-primary-foreground shadow-gold'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                )}
+                className="relative group"
               >
-                <link.icon className="w-5 h-5" />
-                <span className="font-medium">{link.label}</span>
+                {isActive(link.href, link.exact) && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute inset-0 bg-primary/10 border-l-4 border-primary rounded-r-lg"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  />
+                )}
+                <div
+                  className={cn(
+                    'relative flex items-center gap-3 px-4 py-3 rounded-r-lg transition-all duration-200',
+                    isActive(link.href, link.exact)
+                      ? 'text-primary font-bold'
+                      : 'text-muted-foreground group-hover:text-foreground group-hover:bg-muted/50'
+                  )}
+                >
+                  <link.icon className={cn("w-5 h-5", isActive(link.href, link.exact) ? "text-primary" : "text-muted-foreground group-hover:text-primary")} />
+                  <span className="font-medium">{link.label}</span>
+                </div>
               </Link>
             ))}
           </nav>

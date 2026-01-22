@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import api from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { MenuItem } from '@/store/cartStore';
+import { cn } from '@/lib/utils';
 
 interface Category {
   id: string;
@@ -126,6 +127,7 @@ const MenuPage = () => {
                     variant={vegFilter === filter.value ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setVegFilter(filter.value as typeof vegFilter)}
+                    className={`transition-all duration-300 ${vegFilter === filter.value ? 'shadow-gold' : 'hover:border-primary/50 text-foreground bg-card'}`}
                   >
                     {filter.label}
                   </Button>
@@ -135,25 +137,37 @@ const MenuPage = () => {
           </div>
 
           {/* Category Tabs */}
-          <div className="mt-6 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-            <Button
-              variant={selectedCategory === 'all' ? 'default' : 'ghost'}
-              onClick={() => setSelectedCategory('all')}
-              className="flex-shrink-0"
-            >
-              All Items
-            </Button>
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? 'default' : 'ghost'}
-                onClick={() => setSelectedCategory(category.id)}
-                className="flex-shrink-0 gap-2"
-              >
-                <span>{category.icon}</span>
-                {category.name}
-              </Button>
-            ))}
+          <div className="mt-6 flex justify-center w-full">
+            <div className="flex gap-2 overflow-x-auto pb-4 px-4 scrollbar-hide max-w-full items-center">
+              {[
+                { id: 'all', name: 'All Items', icon: '🍽️' },
+                ...categories
+              ].map((category) => {
+                const isActive = selectedCategory === category.id;
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={cn(
+                      "relative px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 border border-transparent whitespace-nowrap",
+                      isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground bg-card/50 hover:bg-card border-border/50"
+                    )}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeCategory"
+                        className="absolute inset-0 bg-gradient-gold rounded-full shadow-gold"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center gap-2">
+                      <span>{category.icon}</span>
+                      {category.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>

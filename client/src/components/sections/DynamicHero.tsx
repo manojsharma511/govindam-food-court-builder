@@ -120,8 +120,8 @@ export const DynamicHero = ({ title: propTitle, subtitle: propSubtitle, buttonTe
                             {/* CTA Buttons */}
                             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                                 <Link to="/menu">
-                                    <Button className="h-14 px-8 text-lg font-medium bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-transform hover:scale-105 shadow-[0_0_20px_rgba(255,165,0,0.5)]">
-                                        {buttonText || 'Reserve Your Stay'}
+                                    <Button variant="hero" size="xl" className="h-14 px-8 text-lg font-bold rounded-full shadow-[0_0_30px_rgba(234,179,8,0.6)] animate-pulse hover:animate-none">
+                                        {buttonText || 'Order Now'}
                                         <ArrowRight className="ml-2 w-5 h-5" />
                                     </Button>
                                 </Link>

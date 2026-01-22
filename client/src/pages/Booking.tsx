@@ -130,8 +130,8 @@ const BookingPage = () => {
                 <div key={s} className="flex items-center">
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${step >= s
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground'
                       }`}
                   >
                     {step > s ? <CheckCircle className="w-5 h-5" /> : s}
@@ -207,8 +207,8 @@ const BookingPage = () => {
                           type="button"
                           onClick={() => setFormData({ ...formData, time })}
                           className={`py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${formData.time === time
-                              ? 'bg-primary text-primary-foreground shadow-gold'
-                              : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                            ? 'bg-primary text-primary-foreground shadow-gold'
+                            : 'bg-muted text-muted-foreground border border-border hover:bg-primary/10 hover:text-primary hover:border-primary/50'
                             }`}
                         >
                           {time}

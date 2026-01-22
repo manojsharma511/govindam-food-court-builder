@@ -1,73 +1,112 @@
-# Welcome to your Lovable project
+# Govindam Food Court Builder
 
-## Project info
+This project is a full-stack web application designed for managing food courts, including a robust admin panel, dynamic menu management, and user ordering system. It uses a **client-server** architecture.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Project Structure
 
-## How can I edit this code?
+- **client/**: The frontend application built with React, Vite, TailwindCSS, and Shadcn UI.
+- **server/**: The backend API built with Node.js, Express, and Prisma (PostgreSQL).
+- **db/**: Database configuration files (Supabase).
+- **package.json**: Root configuration to manage both workspaces.
 
-There are several ways of editing your application.
+## Prerequisites
 
-**Use Lovable**
+Before setting up the project, ensure you have the following installed:
+- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- [npm](https://www.npmjs.com/) (usually comes with Node.js)
+- A [Supabase](https://supabase.com/) account (for the PostgreSQL database).
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## Setup Guide (Start to End)
 
-**Use your preferred IDE**
+Follow these steps to set up the project on your local machine.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 1. Clone & Install Dependencies
+First, clone the repository and install all dependencies for the root, client, and server.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Install dependencies for root, client, and server
+npm run install:all
+```
 
-Follow these steps:
+### 2. Database Setup (Supabase)
+1.  **Create a Project**: Log in to Supabase and create a new project.
+2.  **Get Credentials**: Go to `Project Settings` -> `API`. You will need:
+    -   `Project URL`
+    -   `anon` (public) key
+3.  **Get Connection String**: Go to `Project Settings` -> `Database` -> `Connection Pooling` (recommended) or `Direct Connection`. Copy the connection string.
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 3. Environment Configuration
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+You need to configure environment variables for both the **Client** and **Server**.
 
-# Step 3: Install the necessary dependencies.
-npm i
+#### Server Configuration (`server/.env`)
+Create a new file named `.env` inside the `server/` folder and add the following:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```env
+PORT=5002
+# Replace [PASSWORD] with your actual Supabase DB password
+DATABASE_URL="postgresql://postgres:[PASSWORD]@your-project.supabase.co:5432/postgres"
+
+# These are used for specific backend integrations if needed
+VITE_SUPABASE_PROJECT_ID="your_project_id"
+VITE_SUPABASE_PUBLISHABLE_KEY="your_anon_key"
+VITE_SUPABASE_URL="your_supabase_url"
+```
+
+#### Client Configuration (`client/.env`)
+Create a new file named `.env` inside the `client/` folder and add the following:
+
+```env
+VITE_SUPABASE_PROJECT_ID="your_project_id"
+VITE_SUPABASE_PUBLISHABLE_KEY="your_anon_key"
+VITE_SUPABASE_URL="your_supabase_url"
+
+# API URL (Optional, defaults to http://localhost:5002/api)
+VITE_API_URL="http://localhost:5002/api"
+```
+
+### 4. Database Schema & Seeding
+Once the setup is done, you need to sync the database schema using Prisma.
+
+```bash
+cd server
+
+# Push the Prisma schema to your Supabase database
+npm run prisma:push
+
+# (Optional) Seed the database with initial data
+npm run seed
+
+cd ..
+```
+
+### 5. Running the Application
+You can run both the client and server concurrently from the root directory.
+
+```bash
+# Starts Client (localhost:5000) and Server (localhost:5002)
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+-   **Frontend**: Open [http://localhost:5000](http://localhost:5000)
+-   **Backend**: API runs at [http://localhost:5002](http://localhost:5002)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 6. Building for Production
+To build both the frontend and backend for production:
 
-**Use GitHub Codespaces**
+```bash
+npm run build
+```
+This command runs the build scripts for both workspaces.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Workspace Commands
+The root `package.json` includes helper scripts:
+- `npm run dev`: Runs both client and server in dev mode.
+- `npm run install:all`: Installs all dependencies.
+- `npm run dev:client`: Runs only the client.
+- `npm run dev:server`: Runs only the server.
+- `npm run build`: Builds both projects.
