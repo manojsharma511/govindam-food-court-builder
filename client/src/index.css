@@ -6,105 +6,105 @@
 
 @layer base {
   :root {
-    /* Premium Food Court Color Palette - Enhanced for Contrast */
-    --background: 30 20% 5%;
-    --foreground: 40 30% 98%;
+    /* Premium High-Contrast Clean Dark Mode */
+    --background: 30 10% 6%;
+    --foreground: 0 0% 100%;
 
-    --card: 30 15% 10%;
-    --card-foreground: 40 30% 98%;
+    /* Much clearer distinction for cards */
+    --card: 30 10% 14%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 30 15% 10%;
-    --popover-foreground: 40 30% 98%;
+    --popover: 30 10% 14%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Gold/Amber Primary - Slightly brighter for pop */
-    --primary: 38 92% 55%;
+    /* Vivid Gold Primary - Kept identical for brand consistency */
+    --primary: 42 100% 55%;
     --primary-foreground: 30 20% 5%;
 
-    /* Warm Cream Secondary */
-    --secondary: 35 20% 20%;
-    --secondary-foreground: 40 30% 98%;
+    /* Secondary - clearly distinct from background */
+    --secondary: 30 10% 20%;
+    --secondary-foreground: 0 0% 100%;
 
-    /* Muted tones - Significantly lighter for better visibility */
+    /* Muted elements are now clearly visible */
     --muted: 30 10% 25%;
-    --muted-foreground: 30 15% 80%;
+    --muted-foreground: 35 10% 85%;
+    /* Almost white */
 
-    /* Rich Burgundy Accent */
-    --accent: 350 65% 45%;
-    --accent-foreground: 40 30% 98%;
+    --accent: 345 75% 55%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 65%;
-    --destructive-foreground: 40 30% 98%;
+    --destructive: 0 85% 65%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 30 15% 25%;
-    --input: 30 15% 20%;
-    --ring: 38 92% 55%;
+    /* Strong, visible borders are key for "clean" look */
+    --border: 30 10% 30%;
+    --input: 30 10% 25%;
+    --ring: 42 100% 55%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --gold: 38 92% 55%;
-    --gold-light: 40 90% 70%;
-    --gold-dark: 35 90% 45%;
-    --burgundy: 350 65% 45%;
-    --burgundy-dark: 350 65% 30%;
-    --cream: 40 30% 98%;
-    --cream-dark: 35 25% 90%;
+    --gold: 42 100% 55%;
+    --gold-light: 45 100% 70%;
+    --gold-dark: 38 100% 45%;
+    --burgundy: 345 75% 45%;
 
-    /* Gradients - More Vibrant */
-    --gradient-gold: linear-gradient(135deg, hsl(38, 92%, 55%) 0%, hsl(35, 90%, 45%) 100%);
-    --gradient-dark: linear-gradient(180deg, hsl(30, 20%, 5%) 0%, hsl(30, 15%, 10%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(30, 20%, 8%) 0%, hsl(350, 40%, 15%) 50%, hsl(30, 20%, 8%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(30, 15%, 14%) 0%, hsl(30, 15%, 10%) 100%);
+    /* Gradients - Reduced opacity for cleaner look */
+    --gradient-gold: linear-gradient(135deg, hsl(42, 100%, 60%) 0%, hsl(38, 100%, 50%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(30, 10% 10%) 0%, hsl(30, 10% 6%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(30, 15% 10%) 0%, hsl(30, 10% 6%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(30, 10% 16%) 0%, hsl(30, 10% 12%) 100%);
+    --gradient-glass: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
 
-    /* Shadows - Stronger Glows */
-    --shadow-gold: 0 4px 30px hsl(38, 92%, 55%, 0.3);
-    --shadow-card: 0 10px 40px hsl(0, 0%, 0%, 0.4);
-    --shadow-glow: 0 0 60px hsl(38, 92%, 55%, 0.2);
+    /* Shadows - softer */
+    --shadow-gold: 0 8px 30px -5px hsl(42, 100%, 55%, 0.3);
+    --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --shadow-inner: inset 0 2px 4px 0 rgba(255, 255, 255, 0.05);
+    --shadow-glow: 0 0 40px hsl(42, 100%, 55%, 0.15);
 
-    /* Typography */
     --font-heading: 'Playfair Display', serif;
     --font-body: 'DM Sans', sans-serif;
 
-    /* Sidebar */
-    --sidebar-background: 30 15% 8%;
-    --sidebar-foreground: 40 30% 98%;
-    --sidebar-primary: 38 92% 55%;
+    /* Sidebar - High Contrast */
+    --sidebar-background: 30 10% 10%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 42 100% 55%;
     --sidebar-primary-foreground: 30 20% 5%;
-    --sidebar-accent: 30 15% 18%;
-    --sidebar-accent-foreground: 40 30% 98%;
-    --sidebar-border: 30 15% 25%;
-    --sidebar-ring: 38 92% 55%;
+    --sidebar-accent: 30 10% 20%;
+    --sidebar-accent-foreground: 42 100% 55%;
+    --sidebar-border: 30 10% 30%;
+    --sidebar-ring: 42 100% 55%;
   }
 
-  /* Dark mode overrides (same as root essentially for this theme) */
+  /* Dark mode overrides (Unified) */
   .dark {
-    --background: 30 20% 5%;
-    --foreground: 40 30% 98%;
-    --card: 30 15% 10%;
-    --card-foreground: 40 30% 98%;
-    --popover: 30 15% 10%;
-    --popover-foreground: 40 30% 98%;
-    --primary: 38 92% 55%;
+    --background: 30 10% 6%;
+    --foreground: 0 0% 100%;
+    --card: 30 10% 14%;
+    --card-foreground: 0 0% 100%;
+    --popover: 30 10% 14%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 42 100% 55%;
     --primary-foreground: 30 20% 5%;
-    --secondary: 35 20% 20%;
-    --secondary-foreground: 40 30% 98%;
+    --secondary: 30 10% 20%;
+    --secondary-foreground: 0 0% 100%;
     --muted: 30 10% 25%;
-    --muted-foreground: 30 15% 80%;
-    --accent: 350 65% 45%;
-    --accent-foreground: 40 30% 98%;
-    --destructive: 0 62% 40%;
-    --destructive-foreground: 40 30% 98%;
-    --border: 30 15% 25%;
-    --input: 30 15% 20%;
-    --ring: 38 92% 55%;
-    --sidebar-background: 30 15% 8%;
-    --sidebar-foreground: 40 30% 98%;
-    --sidebar-primary: 38 92% 55%;
+    --muted-foreground: 35 10% 85%;
+    --accent: 345 75% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 85% 65%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 10% 30%;
+    --input: 30 10% 25%;
+    --ring: 42 100% 55%;
+    --sidebar-background: 30 10% 10%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 42 100% 55%;
     --sidebar-primary-foreground: 30 20% 5%;
-    --sidebar-accent: 30 15% 18%;
-    --sidebar-accent-foreground: 40 30% 98%;
-    --sidebar-border: 30 15% 25%;
-    --sidebar-ring: 38 92% 55%;
+    --sidebar-accent: 30 10% 20%;
+    --sidebar-accent-foreground: 42 100% 55%;
+    --sidebar-border: 30 10% 30%;
+    --sidebar-ring: 42 100% 55%;
   }
 }
 

@@ -122,11 +122,11 @@ const AdminDashboard = () => {
                   className={cn(
                     'relative flex items-center gap-3 px-4 py-3 rounded-r-lg transition-all duration-200',
                     isActive(link.href, link.exact)
-                      ? 'text-primary font-bold'
-                      : 'text-muted-foreground group-hover:text-foreground group-hover:bg-muted/50'
+                      ? 'text-primary font-bold bg-primary/10 shadow-[inset_4px_0_0_0_hsl(var(--primary))]'
+                      : 'text-zinc-400 group-hover:text-white group-hover:bg-white/5'
                   )}
                 >
-                  <link.icon className={cn("w-5 h-5", isActive(link.href, link.exact) ? "text-primary" : "text-muted-foreground group-hover:text-primary")} />
+                  <link.icon className={cn("w-5 h-5", isActive(link.href, link.exact) ? "text-primary" : "text-zinc-400 group-hover:text-white")} />
                   <span className="font-medium">{link.label}</span>
                 </div>
               </Link>

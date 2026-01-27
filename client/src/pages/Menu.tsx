@@ -127,7 +127,7 @@ const MenuPage = () => {
                     variant={vegFilter === filter.value ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setVegFilter(filter.value as typeof vegFilter)}
-                    className={`transition-all duration-300 ${vegFilter === filter.value ? 'shadow-gold' : 'hover:border-primary/50 text-foreground bg-card'}`}
+                    className={`transition-all duration-300 ${vegFilter === filter.value ? 'shadow-gold text-primary-foreground font-bold' : 'hover:border-primary text-foreground bg-transparent border-border'}`}
                   >
                     {filter.label}
                   </Button>
@@ -150,7 +150,7 @@ const MenuPage = () => {
                     onClick={() => setSelectedCategory(category.id)}
                     className={cn(
                       "relative px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 border border-transparent whitespace-nowrap",
-                      isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground bg-card/50 hover:bg-card border-border/50"
+                      isActive ? "text-primary-foreground font-bold" : "text-white/70 hover:text-white bg-white/5 hover:bg-white/10 hover:border-primary/30"
                     )}
                   >
                     {isActive && (

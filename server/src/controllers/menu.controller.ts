@@ -13,6 +13,7 @@ export const getMenu = async (req: Request, res: Response) => {
         });
         res.json(categories);
     } catch (error) {
+        console.error('Error in getMenu:', error);
         res.status(500).json({ message: 'Error fetching menu', error });
     }
 };

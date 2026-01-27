@@ -5,6 +5,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Expand } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tilt3D } from '@/components/ui/Tilt3D';
 
 const SHOWCASE_IMAGES = [
     {
@@ -100,33 +101,28 @@ export const HotelShowcase = () => {
                 <div className="overflow-hidden" ref={emblaRef}>
                     <div className="flex gap-6 md:gap-8 cursor-grab active:cursor-grabbing pb-12 pl-4 md:pl-[max(1rem,calc((100vw-1280px)/2+1rem))]">
                         {SHOWCASE_IMAGES.map((image, index) => (
-                            <motion.div
-                                key={index}
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1 }}
-                                className="flex-[0_0_85%] md:flex-[0_0_45%] lg:flex-[0_0_35%] relative group aspect-[4/3] overflow-hidden rounded-2xl"
-                            >
-                                <img
-                                    src={image.src}
-                                    alt={image.title}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-100 transition-opacity duration-300" />
+                            <Tilt3D key={index} className="flex-[0_0_85%] md:flex-[0_0_45%] lg:flex-[0_0_35%] relative group aspect-[4/3]" intensity={5}>
+                                <div className="h-full w-full relative overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+                                    <img
+                                        src={image.src}
+                                        alt={image.title}
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500" />
 
-                                <div className="absolute bottom-0 left-0 right-0 p-8 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                                    <div className="text-primary text-sm font-medium uppercase tracking-wider mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-                                        {image.category}
+                                    <div className="absolute bottom-0 left-0 right-0 p-8 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-10">
+                                        <div className="text-primary text-sm font-bold uppercase tracking-widest mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+                                            {image.category}
+                                        </div>
+                                        <h3 className="text-3xl font-heading font-bold text-white mb-2 drop-shadow-lg">{image.title}</h3>
+                                        <div className="w-16 h-1 bg-gradient-gold shadow-gold transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                                     </div>
-                                    <h3 className="text-2xl font-bold text-white mb-2">{image.title}</h3>
-                                    <div className="w-12 h-1 bg-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-                                </div>
 
-                                <button className="absolute top-4 right-4 p-3 bg-black/30 backdrop-blur-md rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/50">
-                                    <Expand className="w-5 h-5" />
-                                </button>
-                            </motion.div>
+                                    <button className="absolute top-4 right-4 p-3 bg-black/40 backdrop-blur-md rounded-full text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-primary hover:text-black hover:scale-110 z-20 border border-white/10">
+                                        <Expand className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            </Tilt3D>
                         ))}
                     </div>
                 </div>
