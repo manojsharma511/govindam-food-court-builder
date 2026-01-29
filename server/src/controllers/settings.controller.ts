@@ -5,7 +5,16 @@ import { prisma } from '../lib/db';
 
 export const getThemeSettings = async (req: Request, res: Response) => {
     try {
-        const settings = await prisma.themeSettings.findFirst();
+        // For now, get settings for the default branch or the first one found
+        const branch = await prisma.branch.findFirst();
+        if (!branch) {
+            return res.status(404).json({ message: 'No branch found' });
+        }
+
+        const settings = await prisma.themeSettings.findFirst({
+            where: { branchId: branch.id }
+        });
+
         if (!settings) {
             return res.json({
                 primaryColor: "#eab308",
@@ -28,7 +37,15 @@ export const getThemeSettings = async (req: Request, res: Response) => {
 export const updateThemeSettings = async (req: Request, res: Response) => {
     try {
         const data = req.body;
-        const existing = await prisma.themeSettings.findFirst();
+
+        const branch = await prisma.branch.findFirst();
+        if (!branch) {
+            return res.status(404).json({ message: 'No branch found' });
+        }
+
+        const existing = await prisma.themeSettings.findFirst({
+            where: { branchId: branch.id }
+        });
 
         let settings;
         if (existing) {
@@ -38,7 +55,10 @@ export const updateThemeSettings = async (req: Request, res: Response) => {
             });
         } else {
             settings = await prisma.themeSettings.create({
-                data: { ...data }
+                data: {
+                    ...data,
+                    branchId: branch.id
+                }
             });
         }
         res.json(settings);
@@ -51,7 +71,26 @@ export const updateThemeSettings = async (req: Request, res: Response) => {
 
 export const getGlobalSettings = async (req: Request, res: Response) => {
     try {
-        const settings = await prisma.globalSettings.findFirst();
+        const branch = await prisma.branch.findFirst();
+        if (!branch) {
+            // Return defaults if no branch yet (though unlikely if seeded)
+            return res.json({
+                siteName: "Hotel Govindam",
+                maintenanceMode: false,
+                ordersEnabled: true,
+                bookingsEnabled: true,
+                contactEmail: "",
+                contactPhone: "",
+                address: "",
+                socialLinks: {},
+                businessHours: {}
+            });
+        }
+
+        const settings = await prisma.globalSettings.findFirst({
+            where: { branchId: branch.id }
+        });
+
         if (!settings) {
             return res.json({
                 siteName: "Hotel Govindam",
@@ -74,7 +113,15 @@ export const getGlobalSettings = async (req: Request, res: Response) => {
 export const updateGlobalSettings = async (req: Request, res: Response) => {
     try {
         const data = req.body;
-        const existing = await prisma.globalSettings.findFirst();
+
+        const branch = await prisma.branch.findFirst();
+        if (!branch) {
+            return res.status(404).json({ message: 'No branch found' });
+        }
+
+        const existing = await prisma.globalSettings.findFirst({
+            where: { branchId: branch.id }
+        });
 
         let settings;
         if (existing) {
@@ -84,7 +131,10 @@ export const updateGlobalSettings = async (req: Request, res: Response) => {
             });
         } else {
             settings = await prisma.globalSettings.create({
-                data: { ...data }
+                data: {
+                    ...data,
+                    branchId: branch.id
+                }
             });
         }
         res.json(settings);
@@ -98,8 +148,13 @@ export const updateGlobalSettings = async (req: Request, res: Response) => {
 
 export const getMessages = async (req: Request, res: Response) => {
     try {
+        const branch = await prisma.branch.findFirst();
+        // If filtering by branch becomes necessary:
+        // where: { branchId: branch?.id }
         const messages = await prisma.contactSubmission.findMany({
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            // Optional: filter by branch if strict isolation is needed
+            ...(branch ? { where: { branchId: branch.id } } : {})
         });
         res.json(messages);
     } catch (e) {
