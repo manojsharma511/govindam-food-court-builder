@@ -20,9 +20,23 @@ export const getMenu = async (req: Request, res: Response) => {
 
 export const createCategory = async (req: Request, res: Response) => {
     try {
-        const { name, icon, sortOrder } = req.body;
+        const { name, icon, sortOrder, branchId: bodyBranchId } = req.body;
+        const userId = (req as any).user?.userId;
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+
+        const branchId = user?.branchId || bodyBranchId;
+
+        if (!branchId) {
+            return res.status(400).json({ message: "Branch ID required" });
+        }
+
         const category = await prisma.menuCategory.create({
-            data: { name, icon, sortOrder }
+            data: {
+                name,
+                icon,
+                sortOrder,
+                branch: { connect: { id: branchId } }
+            }
         });
         res.json(category);
     } catch (error) {
@@ -32,16 +46,26 @@ export const createCategory = async (req: Request, res: Response) => {
 
 export const createItem = async (req: Request, res: Response) => {
     try {
-        const { categoryId, name, description, price, imageUrl, isVeg, isAvailable } = req.body;
+        const { categoryId, name, description, price, imageUrl, isVeg, isAvailable, branchId: bodyBranchId } = req.body;
+        const userId = (req as any).user?.userId;
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+
+        const branchId = user?.branchId || bodyBranchId;
+
+        if (!branchId) {
+            return res.status(400).json({ message: "Branch ID required" });
+        }
+
         const item = await prisma.menuItem.create({
             data: {
-                categoryId,
+                category: { connect: { id: categoryId } },
                 name,
                 description,
                 price,
                 imageUrl,
                 isVeg,
-                isAvailable
+                isAvailable,
+                branch: { connect: { id: branchId } }
             }
         });
         res.json(item);

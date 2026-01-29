@@ -6,15 +6,29 @@ const prisma = new PrismaClient();
 async function main() {
     const hashedPassword = await bcrypt.hash('admin123', 10);
 
+    // Create Default Branch
+    const defaultBranch = await prisma.branch.create({
+        data: {
+            name: "Main Branch",
+            slug: "main-branch",
+            email: "admin@govindam.com",
+            address: "Main Street, City",
+            phone: "1234567890",
+        }
+    });
+
     // Create Super Admin
     const admin = await prisma.user.upsert({
         where: { email: 'admin@govindam.com' },
-        update: {},
+        update: {
+            branchId: defaultBranch.id
+        },
         create: {
             email: 'admin@govindam.com',
             name: 'Super Admin',
             password: hashedPassword,
             role: Role.SUPER_ADMIN,
+            branchId: defaultBranch.id
         },
     });
 
@@ -32,7 +46,10 @@ async function main() {
 
     for (const cat of categories) {
         await prisma.menuCategory.create({
-            data: cat,
+            data: {
+                ...cat,
+                branchId: defaultBranch.id
+            },
         });
     }
 

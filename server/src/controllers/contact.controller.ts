@@ -3,7 +3,17 @@ import { prisma } from '../lib/db';
 
 export const submitContact = async (req: Request, res: Response) => {
     try {
-        const { name, email, phone, subject, message } = req.body;
+        const { name, email, phone, subject, message, branchId: bodyBranchId } = req.body;
+
+        let branchId = bodyBranchId;
+        if (!branchId) {
+            const defaultBranch = await prisma.branch.findFirst();
+            branchId = defaultBranch?.id;
+        }
+
+        if (!branchId) {
+            return res.status(400).json({ message: "Branch ID required" });
+        }
 
         const submission = await prisma.contactSubmission.create({
             data: {
@@ -11,7 +21,8 @@ export const submitContact = async (req: Request, res: Response) => {
                 email,
                 phone,
                 subject,
-                message
+                message,
+                branch: { connect: { id: branchId } }
             }
         });
 

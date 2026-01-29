@@ -4,7 +4,23 @@ import { prisma } from '../lib/db';
 export const createBooking = async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.userId; // User might be optional? Frontend enforces login.
-        const { bookingType, bookingDate, bookingTime, guestCount, guestName, guestEmail, guestPhone, specialRequests } = req.body;
+        const { bookingType, bookingDate, bookingTime, guestCount, guestName, guestEmail, guestPhone, specialRequests, branchId: bodyBranchId } = req.body;
+
+        let branchId = bodyBranchId;
+        if (!branchId && userId) {
+            const user = await prisma.user.findUnique({ where: { id: userId } });
+            branchId = user?.branchId;
+        }
+
+        // Fallback to a default branch if still not found (optional, but good for stability if single branch)
+        if (!branchId) {
+            const defaultBranch = await prisma.branch.findFirst();
+            branchId = defaultBranch?.id;
+        }
+
+        if (!branchId) {
+            return res.status(400).json({ message: "Branch ID required" });
+        }
 
         const booking = await prisma.booking.create({
             data: {
@@ -17,7 +33,8 @@ export const createBooking = async (req: Request, res: Response) => {
                 phone: guestPhone,
                 specialRequests: specialRequests,
                 occasion: bookingType,
-                status: 'PENDING'
+                status: 'PENDING',
+                branch: { connect: { id: branchId } }
             }
         });
         res.status(201).json(booking);
