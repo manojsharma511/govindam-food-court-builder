@@ -1,19 +1,19 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import authRoutes from './routes/auth.routes';
-import menuRoutes from './routes/menu.routes';
-import userRoutes from './routes/user.routes';
-import pageRoutes from './routes/page.routes';
-import settingsRoutes from './routes/settings.routes';
-import adminRoutes from './routes/admin.routes';
-import orderRoutes from './routes/order.routes';
-import bookingRoutes from './routes/booking.routes';
-import contactRoutes from './routes/contact.routes';
-import uploadRoutes from './routes/upload.routes';
-import branchRoutes from './routes/branch.routes';
-import roomRoutes from './routes/room.routes';
-import analyticsRoutes from './routes/analytics.routes';
+import authRoutes from './routes/auth.routes.js';
+import menuRoutes from './routes/menu.routes.js';
+import userRoutes from './routes/user.routes.js';
+import pageRoutes from './routes/page.routes.js';
+import settingsRoutes from './routes/settings.routes.js';
+import adminRoutes from './routes/admin.routes.js';
+import orderRoutes from './routes/order.routes.js';
+import bookingRoutes from './routes/booking.routes.js';
+import contactRoutes from './routes/contact.routes.js';
+import uploadRoutes from './routes/upload.routes.js';
+import branchRoutes from './routes/branch.routes.js';
+import roomRoutes from './routes/room.routes.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 
 
 
