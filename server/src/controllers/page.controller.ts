@@ -31,6 +31,21 @@ export const createPage = async (req: Request, res: Response) => {
     }
 }
 
+export const updatePage = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const data = req.body;
+
+        const page = await prisma.page.update({
+            where: { id },
+            data
+        });
+        res.json(page);
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating page', error });
+    }
+}
+
 export const deletePage = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;

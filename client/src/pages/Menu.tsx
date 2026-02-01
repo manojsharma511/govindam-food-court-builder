@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSiteConfig } from '@/contexts/SiteConfigContext';
 import { motion } from 'framer-motion';
 import { Search, Filter, Loader2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
@@ -17,6 +18,7 @@ interface Category {
 }
 
 const MenuPage = () => {
+  const { settings } = useSiteConfig();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -82,11 +84,10 @@ const MenuPage = () => {
             className="text-center"
           >
             <span className="text-primary text-sm font-medium uppercase tracking-widest">
-              Explore Our
+              {settings?.menuSubtitle || 'Explore Our'}
             </span>
             <h1 className="text-5xl md:text-6xl font-heading font-bold mt-4 mb-6">
-              <span className="text-foreground">Delicious</span>{' '}
-              <span className="text-gradient-gold">Menu</span>
+              <span className="text-foreground">{settings?.menuTitle || 'Delicious Menu'}</span>
             </h1>
             <div className="ornament-line-long mx-auto" />
             <p className="text-muted-foreground max-w-2xl mx-auto mt-6 text-lg">
@@ -127,7 +128,7 @@ const MenuPage = () => {
                     variant={vegFilter === filter.value ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setVegFilter(filter.value as typeof vegFilter)}
-                    className={`transition-all duration-300 ${vegFilter === filter.value ? 'shadow-gold' : 'hover:border-primary/50 text-foreground bg-card'}`}
+                    className={`transition-all duration-300 ${vegFilter === filter.value ? 'shadow-gold text-primary-foreground font-bold' : 'hover:border-primary text-foreground bg-transparent border-border'}`}
                   >
                     {filter.label}
                   </Button>
@@ -150,7 +151,7 @@ const MenuPage = () => {
                     onClick={() => setSelectedCategory(category.id)}
                     className={cn(
                       "relative px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 border border-transparent whitespace-nowrap",
-                      isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground bg-card/50 hover:bg-card border-border/50"
+                      isActive ? "text-primary-foreground font-bold" : "text-white/70 hover:text-white bg-white/5 hover:bg-white/10 hover:border-primary/30"
                     )}
                   >
                     {isActive && (

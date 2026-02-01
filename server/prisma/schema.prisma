@@ -28,26 +28,69 @@ enum BookingStatus {
   REJECTED
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String?
-  role      Role     @default(USER)
-  permissions String[] @default([])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Branch {
+  id             String   @id @default(uuid())
+  name           String
+  slug           String   @unique
+  address        String?
+  city           String?
+  state          String?
+  latitude       Float?
+  longitude      Float?
+  phone          String?
+  email          String?
+  hasFoodCourt   Boolean  @default(true)
+  hasRooms       Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  seoTitle       String?
+  seoDescription String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  orders    Order[]
-  bookings  Booking[]
+  users              User[]
+  menuCategories     MenuCategory[]
+  menuItems          MenuItem[]
+  orders             Order[]
+  orderItems         OrderItem[]
+  bookings           Booking[]
+  contactSubmissions ContactSubmission[]
+  themeSettings      ThemeSettings[]
+  globalSettings     GlobalSettings[]
+  rooms              Room[]
+  galleryImages      GalleryImage[]
+  teamMembers        TeamMember[]
+  testimonials       Testimonial[]
+  values             Value[]
+  emailSettings      EmailSettings[]
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  name        String?
+  role        Role     @default(USER)
+  permissions String[] @default([])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  branchId String?
+  branch   Branch? @relation(fields: [branchId], references: [id])
+
+  orders       Order[]
+  bookings     Booking[]
+  roomBookings RoomBooking[]
 }
 
 model MenuCategory {
-  id        String      @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
   icon      String?
-  sortOrder Int         @default(0)
+  sortOrder Int        @default(0)
   items     MenuItem[]
+
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id])
 }
 
 model MenuItem {
@@ -62,8 +105,11 @@ model MenuItem {
   category    MenuCategory @relation(fields: [categoryId], references: [id])
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
-  
-  orderItems  OrderItem[]
+
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id])
+
+  orderItems OrderItem[]
 }
 
 model Order {
@@ -73,49 +119,64 @@ model Order {
   totalAmount Decimal
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  
-  user        User?       @relation(fields: [userId], references: [id])
-  items       OrderItem[]
+
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id])
+
+  user  User?       @relation(fields: [userId], references: [id])
+  items OrderItem[]
 }
 
 model OrderItem {
-  id          String   @id @default(uuid())
-  orderId     String
-  menuItemId  String
-  quantity    Int
-  price       Decimal
+  id         String  @id @default(uuid())
+  orderId    String
+  menuItemId String
+  quantity   Int
+  price      Decimal
 
-  order       Order    @relation(fields: [orderId], references: [id])
-  menuItem    MenuItem @relation(fields: [menuItemId], references: [id])
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id])
+
+  order    Order    @relation(fields: [orderId], references: [id])
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
 }
 
 model Booking {
-  id        String        @id @default(uuid())
-  userId    String?
-  date      DateTime
-  time      String
-  guests    Int
-  status    BookingStatus @default(PENDING)
-  
-  // Guest Details for the specific booking
-  name      String?
-  email     String?
-  phone     String?
-  specialRequests String?
-  occasion  String?
+  id       String        @id @default(uuid())
+  userId   String?
+  date     DateTime
+  time     String
+  guests   Int
+  status   BookingStatus @default(PENDING)
 
-  createdAt DateTime      @default(now())
-  
-  user      User?         @relation(fields: [userId], references: [id])
+  // Guest Details for the specific booking
+  name            String?
+  email           String?
+  phone           String?
+  specialRequests String?
+  occasion        String?
+
+  createdAt DateTime @default(now())
+
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id])
+
+  user User? @relation(fields: [userId], references: [id])
 }
 
 model Page {
-  id          String        @id @default(uuid())
-  slug        String        @unique
-  title       String
-  sections    PageSection[]
-  isVisible   Boolean       @default(true)
-  isSystem    Boolean       @default(false)
+  id        String        @id @default(uuid())
+  slug      String        @unique
+  title     String
+  sections  PageSection[]
+  isVisible       Boolean       @default(true)
+  isSystem        Boolean       @default(false)
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  ogImage         String?
+  canonicalUrl    String?
+  noIndex         Boolean       @default(false)
 }
 
 model PageSection {
@@ -126,7 +187,7 @@ model PageSection {
   isVisible Boolean @default(true)
   sortOrder Int     @default(0)
 
-  page      Page    @relation(fields: [pageId], references: [id])
+  page Page @relation(fields: [pageId], references: [id])
 }
 
 model ContactSubmission {
@@ -137,6 +198,9 @@ model ContactSubmission {
   subject   String?
   message   String
   createdAt DateTime @default(now())
+
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id])
 }
 
 model ThemeSettings {
@@ -150,19 +214,198 @@ model ThemeSettings {
   fontFamilyBody    String @default("Inter")
   borderRadius      String @default("0.5rem")
   shadowIntensity   String @default("medium")
+  darkModeEnabled   Boolean @default(false)
+  darkPrimaryColor  String?
+  darkSecondaryColor String?
+  darkBackgroundColor String?
+  darkTextColor     String?
+  customCSS         String?
   updatedAt         DateTime @updatedAt
+
+  branchId String
+  branch   Branch @relation(fields: [branchId], references: [id])
 }
 
 model GlobalSettings {
-  id             String @id @default(uuid())
-  siteName       String @default("Hotel Govindam")
-  maintenanceMode Boolean @default(false)
-  ordersEnabled  Boolean @default(true)
-  bookingsEnabled Boolean @default(true)
-  contactEmail   String?
-  contactPhone   String?
-  address        String?
-  socialLinks    Json? 
-  businessHours  Json?
-  updatedAt      DateTime @updatedAt
+  id              String   @id @default(uuid())
+  
+  // Site Identity
+  siteName        String   @default("Hotel Govindam")
+  siteTagline     String?
+  siteLogo        String?
+  siteFavicon     String?
+  
+  // Contact Information
+  contactEmail    String?
+  contactPhone    String?
+  whatsappNumber  String?
+  address         String?
+  city            String?
+  state           String?
+  pincode         String?
+  country         String?
+  
+  // Business Hours
+  businessHours   Json?    // { monday: "10:00 AM - 10:00 PM", ... }
+  is24x7          Boolean  @default(false)
+  
+  // Social Media
+  socialLinks     Json?    // { facebook: "", instagram: "", twitter: "", youtube: "", linkedin: "" }
+  
+  // SEO
+  seoTitle        String?
+  seoDescription  String?
+  seoKeywords     String?
+  
+  // Feature Toggles
+  maintenanceMode Boolean  @default(false)
+  ordersEnabled   Boolean  @default(true)
+  bookingsEnabled Boolean  @default(true)
+  galleryEnabled  Boolean  @default(true)
+  testimonialsEnabled Boolean @default(true)
+  
+  // About Page Content
+  aboutTitle      String?
+  aboutSubtitle   String?
+  aboutStory      String?
+  aboutMission    String?
+  aboutVision     String?
+  
+  // Stats
+  statsYears      String    @default("25+")
+  statsDishes     String    @default("100+")
+  statsCustomers  String    @default("50K+")
+  statsAwards     String    @default("15+")
+  
+  // Newsletter
+  newsletterEnabled Boolean @default(true)
+  newsletterText  String?
+
+  // Home Page Content
+  homeHeroTitle      String?
+  homeHeroSubtitle   String?
+  homeHeroImage      String?
+  homeHeroVideo      String?
+  homeHeroCtaText    String? @default("View Menu")
+  homeHeroCtaLink    String? @default("/menu")
+  homeHeroSlides     Json?   // [{image: "", title: "", subtitle: "", ctaText: "", ctaLink: ""}]
+
+  // Menu Page Content
+  menuTitle          String? @default("Our Menu")
+  menuSubtitle       String? @default("Explore our culinary delights")
+  
+  // Gallery Page Content
+  galleryTitle       String? @default("Our Gallery")
+  gallerySubtitle    String? @default("Visual feast of our ambiance and food")
+  
+  // Contact Page Content
+  contactTitle       String? @default("Contact Us")
+  contactSubtitle    String? @default("Get in touch with us")
+  contactMapUrl      String?
+
+  // Footer
+  footerDescription String?
+  copyrightText   String?
+  
+  updatedAt       DateTime @updatedAt
+  branchId        String
+  branch          Branch   @relation(fields: [branchId], references: [id])
+}
+
+model TeamMember {
+  id          String   @id @default(uuid())
+  name        String
+  role        String
+  description String?
+  imageUrl    String?
+  sortOrder   Int      @default(0)
+  isVisible   Boolean  @default(true)
+  
+  branchId    String
+  branch      Branch   @relation(fields: [branchId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id           String   @id @default(uuid())
+  customerName String
+  customerRole String?
+  rating       Int      @default(5)
+  review       String
+  imageUrl     String?
+  isVisible    Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  
+  branchId     String
+  branch       Branch   @relation(fields: [branchId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Value {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  icon        String?  // emoji or icon name
+  sortOrder   Int      @default(0)
+  isVisible   Boolean  @default(true)
+  
+  branchId    String
+  branch      Branch   @relation(fields: [branchId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Room {
+  id          String   @id @default(uuid())
+  branchId    String
+  branch      Branch   @relation(fields: [branchId], references: [id])
+  name        String
+  type        String
+  price       Decimal
+  capacity    Int
+  images      String[]
+  isAvailable Boolean  @default(true)
+
+  bookings RoomBooking[]
+}
+
+model RoomBooking {
+  id        String        @id @default(uuid())
+  roomId    String
+  room      Room          @relation(fields: [roomId], references: [id])
+  userId    String?
+  user      User?         @relation(fields: [userId], references: [id])
+  checkIn   DateTime
+  checkOut  DateTime
+  status    BookingStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+}
+
+model GalleryImage {
+  id        String   @id @default(uuid())
+  url       String
+  caption   String?
+  category  String?  // "interior", "food", "events", "team"
+  sortOrder Int      @default(0)
+  isVisible Boolean  @default(true)
+  
+  branchId  String
+  branch    Branch   @relation(fields: [branchId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EmailSettings {
+  id              String  @id @default(uuid())
+  smtpHost        String?
+  smtpPort        Int?
+  smtpUser        String?
+  smtpPassword    String?
+  fromEmail       String?
+  fromName        String?
+  
+  branchId        String
+  branch          Branch  @relation(fields: [branchId], references: [id])
 }

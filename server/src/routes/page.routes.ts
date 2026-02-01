@@ -6,7 +6,8 @@ import {
     deletePage,
     updateSection,
     createSection,
-    deleteSection
+    deleteSection,
+    updatePage
 } from '../controllers/page.controller';
 import { authMiddleware, authorize } from '../middleware/auth.middleware';
 import { Role } from '@prisma/client';
@@ -19,6 +20,7 @@ router.get('/public/:slug', getPageBySlug);
 // Admin Pages
 router.get('/', authMiddleware, authorize([Role.ADMIN, Role.SUPER_ADMIN]), getPages);
 router.post('/', authMiddleware, authorize([Role.SUPER_ADMIN]), createPage);
+router.put('/:id', authMiddleware, authorize([Role.SUPER_ADMIN]), updatePage);
 router.delete('/:id', authMiddleware, authorize([Role.SUPER_ADMIN]), deletePage);
 
 // Admin Sections

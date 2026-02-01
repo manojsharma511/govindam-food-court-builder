@@ -1,97 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSiteConfig } from '@/contexts/SiteConfigContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { cn } from '@/lib/utils';
-
-const galleryImages = [
-  {
-    id: 1,
-    src: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?ixlib=rb-4.0.3',
-    alt: 'Grand Lobby',
-    category: 'ambiance',
-  },
-  {
-    id: 2,
-    src: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=800',
-    alt: 'Paneer Tikka',
-    category: 'food',
-  },
-  {
-    id: 3,
-    src: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=800',
-    alt: 'Indian Breads',
-    category: 'food',
-  },
-  {
-    id: 4,
-    src: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800',
-    alt: 'Chef at Work',
-    category: 'team',
-  },
-  {
-    id: 5,
-    src: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=800',
-    alt: 'Biryani',
-    category: 'food',
-  },
-  {
-    id: 6,
-    src: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3',
-    alt: 'Rooftop Pool',
-    category: 'ambiance',
-  },
-  {
-    id: 7,
-    src: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=800',
-    alt: 'Paneer Butter Masala',
-    category: 'food',
-  },
-  {
-    id: 8,
-    src: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-4.0.3',
-    alt: 'Luxury Spa',
-    category: 'ambiance',
-  },
-  {
-    id: 9,
-    src: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=800',
-    alt: 'Chef Preparing',
-    category: 'team',
-  },
-  {
-    id: 10,
-    src: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=800',
-    alt: 'Butter Chicken',
-    category: 'food',
-  },
-  {
-    id: 11,
-    src: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3',
-    alt: 'Premium Suite',
-    category: 'ambiance',
-  },
-  {
-    id: 12,
-    src: 'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=800',
-    alt: 'Special Event',
-    category: 'events',
-  },
-];
+import api from '@/lib/api';
 
 const categories = [
   { id: 'all', label: 'All' },
   { id: 'food', label: 'Food' },
   { id: 'ambiance', label: 'Ambiance' },
-  { id: 'team', label: 'Our Team' },
+  { id: 'team', label: 'Our Team' }, // Matches seeding
   { id: 'events', label: 'Events' },
 ];
 
 const GalleryPage = () => {
+  const { settings } = useSiteConfig();
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedImage, setSelectedImage] = useState<typeof galleryImages[0] | null>(null);
+  const [images, setImages] = useState<any[]>([]);
+  const [selectedImage, setSelectedImage] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const filteredImages = galleryImages.filter(
+  useEffect(() => {
+    api.get('/gallery')
+      .then(res => {
+        const mapped = res.data.map((img: any) => ({
+          id: img.id,
+          src: img.url,
+          alt: img.caption || 'Gallery Image',
+          category: img.category
+        }));
+        setImages(mapped);
+      })
+      .catch(err => console.error("Failed to fetch gallery", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filteredImages = images.filter(
     (img) => selectedCategory === 'all' || img.category === selectedCategory
   );
 
@@ -107,11 +52,10 @@ const GalleryPage = () => {
             className="text-center"
           >
             <span className="text-primary text-sm font-medium uppercase tracking-widest">
-              Visual Journey
+              {settings?.gallerySubtitle || 'Visual Journey'}
             </span>
             <h1 className="text-5xl md:text-6xl font-heading font-bold mt-4 mb-6">
-              <span className="text-foreground">Our</span>{' '}
-              <span className="text-gradient-gold">Gallery</span>
+              <span className="text-foreground">{settings?.galleryTitle || 'Our Gallery'}</span>
             </h1>
             <div className="ornament-line-long mx-auto" />
             <p className="text-muted-foreground max-w-2xl mx-auto mt-6 text-lg">
@@ -157,31 +101,35 @@ const GalleryPage = () => {
       {/* Gallery Grid */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            <AnimatePresence>
-              {filteredImages.map((image) => (
-                <motion.div
-                  key={image.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                  className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer"
-                  onClick={() => setSelectedImage(image)}
-                >
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                    <p className="text-foreground font-medium">{image.alt}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          {loading ? (
+            <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
+          ) : (
+            <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <AnimatePresence>
+                {filteredImages.map((image) => (
+                  <motion.div
+                    key={image.id}
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                    className="group relative aspect-square rounded-xl overflow-hidden cursor-pointer"
+                    onClick={() => setSelectedImage(image)}
+                  >
+                    <img
+                      src={image.src}
+                      alt={image.alt}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                      <p className="text-foreground font-medium">{image.alt}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
         </div>
       </section>
 

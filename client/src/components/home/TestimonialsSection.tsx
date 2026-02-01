@@ -1,72 +1,112 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Star, Quote } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, Quote, Loader2, PenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import api from '@/lib/api';
 
 interface Testimonial {
-  id: number | string;
-  name: string;
-  role: string;
-  image: string;
+  id: string;
+  customerName: string;
+  customerRole: string;
+  imageUrl: string;
   rating: number;
-  text: string;
+  review: string;
 }
 
 interface TestimonialsSectionProps {
   title?: string;
   subtitle?: string;
-  testimonials?: Testimonial[];
 }
 
-const defaultTestimonials: Testimonial[] = [
-  {
-    id: 1,
-    name: 'Priya Sharma',
-    role: 'Food Blogger',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
-    rating: 5,
-    text: 'The best Indian food I\'ve ever had! The butter chicken here is absolutely divine. The ambiance is perfect for family dinners and special occasions.',
-  },
-  {
-    id: 2,
-    name: 'Rajesh Patel',
-    role: 'Regular Customer',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-    rating: 5,
-    text: 'Been coming here for 10 years. The consistency in quality and taste is remarkable. Their biryani is simply the best in town!',
-  },
-  {
-    id: 3,
-    name: 'Anita Desai',
-    role: 'Corporate Event Planner',
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150',
-    rating: 5,
-    text: 'We hosted our company event here and the team went above and beyond. Amazing food, impeccable service, and beautiful presentation.',
-  },
-  {
-    id: 4,
-    name: 'Vikram Singh',
-    role: 'Food Critic',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150',
-    rating: 5,
-    text: 'A rare find - authentic flavors with modern presentation. The chefs clearly understand the nuances of traditional Indian cooking.',
-  },
-];
+const reviewSchema = z.object({
+  customerName: z.string().min(2, "Name is required"),
+  customerRole: z.string().optional(),
+  rating: z.coerce.number().min(1).max(5),
+  review: z.string().min(10, "Review must be at least 10 characters"),
+});
+
+type ReviewFormValues = z.infer<typeof reviewSchema>;
 
 export const TestimonialsSection = ({
   title = "What Our <span class='text-gradient-gold'>Guests Say</span>",
-  subtitle = "Testimonials",
-  testimonials = defaultTestimonials
+  subtitle = "Testimonials"
 }: TestimonialsSectionProps) => {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  const form = useForm<ReviewFormValues>({
+    resolver: zodResolver(reviewSchema),
+    defaultValues: {
+      customerName: "",
+      customerRole: "",
+      rating: 5,
+      review: ""
+    }
+  });
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const { data } = await api.get('/testimonials');
+        setTestimonials(data);
+      } catch (error) {
+        console.error("Failed to fetch testimonials", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTestimonials();
+  }, []);
 
   const next = () => {
+    if (testimonials.length === 0) return;
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);
   };
 
   const prev = () => {
+    if (testimonials.length === 0) return;
     setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
   };
+
+  const onSubmit = async (data: ReviewFormValues) => {
+    try {
+      await api.post('/testimonials', data);
+      toast({
+        title: "Review Submitted",
+        description: "Thank you! Your review has been submitted for approval.",
+      });
+      setIsDialogOpen(false);
+      form.reset();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to submit review. Please try again.",
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className="py-24 bg-gradient-hero flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </section>
+    );
+  }
+
+  // Allow rendering even if empty so users can add reviews
+  // if (testimonials.length === 0) return null; 
 
   return (
     <section className="py-24 bg-gradient-hero relative overflow-hidden">
@@ -111,8 +151,8 @@ export const TestimonialsSection = ({
                     <div className="flex-shrink-0">
                       <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary shadow-gold">
                         <img
-                          src={testimonials[currentIndex].image}
-                          alt={testimonials[currentIndex].name}
+                          src={testimonials[currentIndex].imageUrl || `https://ui-avatars.com/api/?name=${testimonials[currentIndex].customerName}&background=random`}
+                          alt={testimonials[currentIndex].customerName}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -129,16 +169,16 @@ export const TestimonialsSection = ({
 
                       {/* Quote */}
                       <blockquote className="text-lg md:text-xl text-foreground leading-relaxed mb-6">
-                        "{testimonials[currentIndex].text}"
+                        "{testimonials[currentIndex].review}"
                       </blockquote>
 
                       {/* Author */}
                       <div>
                         <h4 className="font-heading font-semibold text-primary text-lg">
-                          {testimonials[currentIndex].name}
+                          {testimonials[currentIndex].customerName}
                         </h4>
                         <p className="text-muted-foreground text-sm">
-                          {testimonials[currentIndex].role}
+                          {testimonials[currentIndex].customerRole}
                         </p>
                       </div>
                     </div>
@@ -164,8 +204,8 @@ export const TestimonialsSection = ({
                       key={index}
                       onClick={() => setCurrentIndex(index)}
                       className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex
-                          ? 'w-8 bg-primary'
-                          : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                        ? 'w-8 bg-primary'
+                        : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
                         }`}
                     />
                   ))}
@@ -182,8 +222,55 @@ export const TestimonialsSection = ({
               </div>
             </>
           ) : (
-            <div className="text-center text-muted-foreground">No testimonials available.</div>
+            <div className="text-center text-muted-foreground py-10 bg-card rounded-xl border border-border">
+              <p>Be the first to leave a review!</p>
+            </div>
           )}
+
+          {/* Write a Review Button */}
+          <div className="flex justify-center mt-12">
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="lg" className="shadow-gold gap-2">
+                  <PenLine className="w-4 h-4" />
+                  Write a Review
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Share Your Experience</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Your Name</Label>
+                    <Input id="name" {...form.register("customerName")} placeholder="John Doe" />
+                    {form.formState.errors.customerName && <p className="text-xs text-destructive">{form.formState.errors.customerName.message}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Role (Optional)</Label>
+                    <Input id="role" {...form.register("customerRole")} placeholder="e.g. Tourist, Local Foodie" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="rating">Rating (1-5)</Label>
+                    <Input id="rating" type="number" min="1" max="5" {...form.register("rating")} />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="review">Review</Label>
+                    <Textarea id="review" {...form.register("review")} placeholder="Tell us about your stay or dining experience..." rows={4} />
+                    {form.formState.errors.review && <p className="text-xs text-destructive">{form.formState.errors.review.message}</p>}
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                    Submit Review
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </div>
     </section>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSiteConfig } from '@/contexts/SiteConfigContext';
 import { Layout } from '@/components/layout/Layout';
 import { DynamicHero } from '@/components/sections/DynamicHero';
 import { DynamicFeatures } from '@/components/sections/DynamicFeatures';
@@ -46,6 +47,8 @@ const Index = () => {
     )
   }
 
+  const { settings } = useSiteConfig();
+
   // If no sections found (or API failed), fall back to hardcoded default
   // But wait, the prompt says "Anything visible MUST be editable".
   // So if API fails or is empty, we show a "Maintenance" or empty state?
@@ -57,7 +60,17 @@ const Index = () => {
         sections.map((section) => {
           switch (section.type) {
             case 'hero':
-              return <DynamicHero key={section.id} {...section.content} />;
+              // Merge DB content with Settings override if available (prioritizing settings for easy admin edit)
+              // Actually, simpler to just use settings if we are in fallback mode, 
+              // but if fetchHome returns sections, those might be the "truth".
+              // However, user asked for "Site Content Manager" to control it.
+              // So let's pass settings.homeHero... as props to DynamicHero if they exist
+              return <DynamicHero key={section.id} {...section.content}
+                title={settings?.homeHeroTitle}
+                subtitle={settings?.homeHeroSubtitle}
+                buttonText={settings?.homeHeroCtaText}
+              // We might need to handle image/video overrides too if DynamicHero supports it
+              />;
             case 'features':
               return <DynamicFeatures key={section.id} {...section.content} />;
             case 'about':
@@ -73,11 +86,16 @@ const Index = () => {
       ) : (
         // Fallback layout if DB is empty to avoid broken site during dev
         <>
-          <DynamicHero />
+          <DynamicHero
+            title={settings?.homeHeroTitle}
+            subtitle={settings?.homeHeroSubtitle}
+            buttonText={settings?.homeHeroCtaText}
+          // If image is provided in settings, we should probably construct a slide or pass it
+          />
           <DynamicFeatures title="Our Cuisine" subtitle="Taste the Excellence" />
           <AboutPreview />
-          <HotelShowcase />
-          <TestimonialsSection />
+          {settings?.galleryEnabled && <HotelShowcase />}
+          {settings?.testimonialsEnabled && <TestimonialsSection />}
           <CTASection />
         </>
       )}

@@ -1,11 +1,21 @@
+
 import { Request, Response } from 'express';
 import { prisma } from '../lib/db';
+import { emitConfigUpdate } from '../lib/realtime';
 
 // --- Theme Settings ---
 
 export const getThemeSettings = async (req: Request, res: Response) => {
     try {
-        const settings = await prisma.themeSettings.findFirst();
+        const branch = await prisma.branch.findFirst();
+        if (!branch) {
+            return res.status(404).json({ message: 'No branch found' });
+        }
+
+        const settings = await prisma.themeSettings.findFirst({
+            where: { branchId: branch.id }
+        });
+
         if (!settings) {
             return res.json({
                 primaryColor: "#eab308",
@@ -28,7 +38,15 @@ export const getThemeSettings = async (req: Request, res: Response) => {
 export const updateThemeSettings = async (req: Request, res: Response) => {
     try {
         const data = req.body;
-        const existing = await prisma.themeSettings.findFirst();
+
+        const branch = await prisma.branch.findFirst();
+        if (!branch) {
+            return res.status(404).json({ message: 'No branch found' });
+        }
+
+        const existing = await prisma.themeSettings.findFirst({
+            where: { branchId: branch.id }
+        });
 
         let settings;
         if (existing) {
@@ -38,9 +56,13 @@ export const updateThemeSettings = async (req: Request, res: Response) => {
             });
         } else {
             settings = await prisma.themeSettings.create({
-                data: { ...data }
+                data: {
+                    ...data,
+                    branchId: branch.id
+                }
             });
         }
+        emitConfigUpdate('theme-settings', settings);
         res.json(settings);
     } catch (error) {
         res.status(500).json({ message: 'Error updating theme settings', error });
@@ -51,7 +73,15 @@ export const updateThemeSettings = async (req: Request, res: Response) => {
 
 export const getGlobalSettings = async (req: Request, res: Response) => {
     try {
-        const settings = await prisma.globalSettings.findFirst();
+        const branch = await prisma.branch.findFirst();
+        if (!branch) {
+            return res.json({});
+        }
+
+        const settings = await prisma.globalSettings.findFirst({
+            where: { branchId: branch.id }
+        });
+
         if (!settings) {
             return res.json({
                 siteName: "Hotel Govindam",
@@ -62,7 +92,16 @@ export const getGlobalSettings = async (req: Request, res: Response) => {
                 contactPhone: "",
                 address: "",
                 socialLinks: {},
-                businessHours: {}
+                businessHours: {},
+                homeHeroTitle: "Welcome to Hotel Govindam",
+                homeHeroSubtitle: "Authentic Flavors, Royal Ambience",
+                homeHeroCtaText: "View Menu",
+                menuTitle: "Our Menu",
+                menuSubtitle: "Explore our culinary delights",
+                galleryTitle: "Our Gallery",
+                gallerySubtitle: "Visual feast of our ambiance and food",
+                contactTitle: "Contact Us",
+                contactSubtitle: "Get in touch with us"
             });
         }
         res.json(settings);
@@ -74,7 +113,15 @@ export const getGlobalSettings = async (req: Request, res: Response) => {
 export const updateGlobalSettings = async (req: Request, res: Response) => {
     try {
         const data = req.body;
-        const existing = await prisma.globalSettings.findFirst();
+
+        const branch = await prisma.branch.findFirst();
+        if (!branch) {
+            return res.status(404).json({ message: 'No branch found' });
+        }
+
+        const existing = await prisma.globalSettings.findFirst({
+            where: { branchId: branch.id }
+        });
 
         let settings;
         if (existing) {
@@ -84,9 +131,13 @@ export const updateGlobalSettings = async (req: Request, res: Response) => {
             });
         } else {
             settings = await prisma.globalSettings.create({
-                data: { ...data }
+                data: {
+                    ...data,
+                    branchId: branch.id
+                }
             });
         }
+        emitConfigUpdate('global-settings', settings);
         res.json(settings);
     } catch (error) {
         console.error(error);
@@ -98,8 +149,10 @@ export const updateGlobalSettings = async (req: Request, res: Response) => {
 
 export const getMessages = async (req: Request, res: Response) => {
     try {
+        const branch = await prisma.branch.findFirst();
         const messages = await prisma.contactSubmission.findMany({
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            ...(branch ? { where: { branchId: branch.id } } : {})
         });
         res.json(messages);
     } catch (e) {

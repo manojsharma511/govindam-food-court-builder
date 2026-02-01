@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin, Clock, Facebook, Instagram, Twitter, Youtube } from 'lucide-react';
 
+import { useSiteConfig } from '@/contexts/SiteConfigContext';
+
 export const Footer = () => {
+  const { settings } = useSiteConfig();
   return (
     <footer className="bg-card border-t border-border">
       {/* Main Footer */}
@@ -10,12 +13,16 @@ export const Footer = () => {
           {/* Brand */}
           <div className="space-y-6">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center shadow-gold">
-                <span className="text-2xl">🍽️</span>
+              <div className="w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center shadow-gold overflow-hidden">
+                {settings?.logoUrl ? (
+                  <img src={settings.logoUrl} alt={settings.siteName} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl">🍽️</span>
+                )}
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-heading font-bold text-gradient-gold">
-                  Hotel Govindam
+                  {settings?.siteName || 'Hotel Govindam'}
                 </span>
                 <span className="text-xs text-muted-foreground tracking-widest uppercase">
                   Food Court
@@ -23,19 +30,21 @@ export const Footer = () => {
               </div>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              Experience the finest Indian cuisine crafted with love and tradition. 
-              Every dish tells a story of heritage and authentic flavors.
+              {settings?.footerDescription || settings?.description || 'Experience the finest Indian cuisine crafted with love and tradition.'}
             </p>
             <div className="flex gap-4">
-              {[Facebook, Instagram, Twitter, Youtube].map((Icon, index) => (
-                <a
-                  key={index}
-                  href="#"
-                  className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                >
-                  <Icon className="w-5 h-5" />
-                </a>
-              ))}
+              {settings?.socialLinks?.facebook && (
+                <a href={settings.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="hover:text-primary"><Facebook className="w-5 h-5" /></a>
+              )}
+              {settings?.socialLinks?.instagram && (
+                <a href={settings.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-primary"><Instagram className="w-5 h-5" /></a>
+              )}
+              {settings?.socialLinks?.twitter && (
+                <a href={settings.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="hover:text-primary"><Twitter className="w-5 h-5" /></a>
+              )}
+              {settings?.socialLinks?.youtube && (
+                <a href={settings.socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="hover:text-primary"><Youtube className="w-5 h-5" /></a>
+              )}
             </div>
           </div>
 
@@ -69,23 +78,32 @@ export const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-muted-foreground text-sm">
-                  123 Food Street, Sector 15,<br />
-                  Gandhinagar, Gujarat 382015
+                <span className="text-muted-foreground text-sm break-words">
+                  {settings?.address || '123 Food Street, Sector 15, Gandhinagar, Gujarat 382015'}
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary flex-shrink-0" />
-                <span className="text-muted-foreground text-sm">+91 98765 43210</span>
+                <span className="text-muted-foreground text-sm">{settings?.contactPhone || '+91 98765 43210'}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary flex-shrink-0" />
-                <span className="text-muted-foreground text-sm">info@hotelgovindam.com</span>
+                <span className="text-muted-foreground text-sm">{settings?.contactEmail || 'info@hotelgovindam.com'}</span>
               </li>
               <li className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                 <div className="text-muted-foreground text-sm">
-                  <p>Mon - Sun: 11:00 AM - 11:00 PM</p>
+                  {settings?.businessHours ? (
+                    typeof settings.businessHours === 'string' ? (
+                      <p>{settings.businessHours}</p>
+                    ) : (
+                      Object.entries(settings.businessHours || {}).slice(0, 1).map(([day, time]) => (
+                        <p key={day}><span className="capitalize">{day}</span>: {time} <span className="text-xs ml-1">(See contact page for all)</span></p>
+                      ))
+                    )
+                  ) : (
+                    <p>Mon - Sun: 10:00 AM - 10:00 PM</p>
+                  )}
                   <p className="text-primary text-xs mt-1">Open all days</p>
                 </div>
               </li>
@@ -96,7 +114,7 @@ export const Footer = () => {
           <div className="space-y-6">
             <h3 className="text-lg font-heading font-semibold text-primary">Newsletter</h3>
             <p className="text-muted-foreground text-sm">
-              Subscribe for exclusive offers, new dishes, and special events.
+              {settings?.newsletterText || 'Subscribe for exclusive offers, new dishes, and special events.'}
             </p>
             <form className="space-y-3">
               <input
@@ -119,7 +137,7 @@ export const Footer = () => {
       <div className="border-t border-border">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>© 2024 Hotel Govindam Food Court. All rights reserved.</p>
+            <p>{settings?.copyrightText || '© 2024 Hotel Govindam Food Court. All rights reserved.'}</p>
             <div className="flex gap-6">
               <Link to="/privacy" className="hover:text-primary transition-colors">
                 Privacy Policy

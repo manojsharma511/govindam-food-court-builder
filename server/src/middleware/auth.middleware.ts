@@ -12,6 +12,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key') as {
             userId: string;
             role: any;
+            permissions?: string[];
         };
 
         (req as any).user = decoded;
@@ -21,11 +22,28 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     }
 };
 
-export const authorize = (roles: string[]) => {
+export const authorize = (roles: string[], requiredPermission?: string) => {
     return (req: Request, res: Response, next: NextFunction) => {
-        if (!(req as any).user || !roles.includes((req as any).user.role)) {
+        const user = (req as any).user;
+        if (!user) {
             return res.status(403).json({ message: 'Access denied' });
         }
+
+        // Check if user has one of the allowed roles
+        if (!roles.includes(user.role)) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+
+        // Super Admin bypasses permission check
+        if (user.role === 'SUPER_ADMIN') {
+            return next();
+        }
+
+        // If a specific permission is required, check for it
+        if (requiredPermission && (!user.permissions || !user.permissions.includes(requiredPermission))) {
+            return res.status(403).json({ message: 'Insufficient permissions' });
+        }
+
         next();
     };
 };

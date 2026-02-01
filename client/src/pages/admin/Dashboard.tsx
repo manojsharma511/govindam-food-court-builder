@@ -1,20 +1,23 @@
+
 import { useState } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
-  ChefHat,
+  ClipboardList,
   UtensilsCrossed,
   Calendar,
   Users,
   Settings,
-  Menu,
-  X,
   LogOut,
+  Menu,
   Home,
-  BarChart3,
+  GitBranch,
+  BedDouble,
   Image,
   MessageSquare,
+  Building2,
+  ChefHat
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,17 +31,24 @@ import AdminBookings from './AdminBookings';
 import AdminGallery from './AdminGallery';
 import AdminMessages from './AdminMessages';
 import AdminUsers from './AdminUsers';
-import AdminSettings from './AdminSettings';
+import AdminSettings from './AdminSettings'; // Keeping for reference if needed, but easier to swap
+import SiteContentManager from './SiteContentManager';
+import AdminBranches from './AdminBranches';
+import AdminRooms from './AdminRooms';
+import AdminTestimonials from './AdminTestimonials';
 
 const sidebarLinks = [
-  { href: '/admin', icon: LayoutDashboard, label: 'Overview', exact: true, permission: 'view_analytics' }, // 'view_analytics' is loosely the base permission
+  { href: '/admin', icon: LayoutDashboard, label: 'Overview', exact: true, permission: 'view_analytics' },
   { href: '/admin/orders', icon: ChefHat, label: 'Orders', permission: 'manage_orders' },
   { href: '/admin/menu', icon: UtensilsCrossed, label: 'Menu', permission: 'manage_menu' },
   { href: '/admin/bookings', icon: Calendar, label: 'Bookings', permission: 'manage_bookings' },
   { href: '/admin/gallery', icon: Image, label: 'Gallery', permission: 'manage_cms' },
+  { href: '/admin/testimonials', icon: MessageSquare, label: 'Testimonials', permission: 'manage_cms' },
   { href: '/admin/messages', icon: MessageSquare, label: 'Messages', permission: 'manage_cms' },
   { href: '/admin/users', icon: Users, label: 'Users', superAdminOnly: true },
-  { href: '/admin/settings', icon: Settings, label: 'Settings', superAdminOnly: true },
+  { href: '/admin/branches', icon: Building2, label: 'Branches', superAdminOnly: true },
+  { href: '/admin/rooms', icon: BedDouble, label: 'Rooms', superAdminOnly: true },
+  { href: '/admin/settings', icon: Settings, label: 'Website Builder', superAdminOnly: true },
 ];
 
 const AdminDashboard = () => {
@@ -53,18 +63,10 @@ const AdminDashboard = () => {
   };
 
   const filteredLinks = sidebarLinks.filter((link) => {
-    // 1. Super Admin sees everything
     if (isSuperAdmin) return true;
-
-    // 2. Strict Super Admin Only
     if (link.superAdminOnly) return false;
-
-    // 3. Admin: Check Permission
-    // If no explicit permission tag, show it (e.g. Dashboard base)
-    // Or if they have the permission
     if (!link.permission) return true;
     if (user?.permissions?.includes(link.permission)) return true;
-
     return false;
   });
 
@@ -77,7 +79,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
       <aside
         className={cn(
           'fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transition-transform duration-300 lg:translate-x-0',
@@ -85,7 +86,6 @@ const AdminDashboard = () => {
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Logo */}
           <div className="p-6 border-b border-border">
             <Link to="/" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-gold flex items-center justify-center shadow-gold">
@@ -100,7 +100,6 @@ const AdminDashboard = () => {
             </Link>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {filteredLinks.map((link) => (
               <Link
@@ -122,18 +121,17 @@ const AdminDashboard = () => {
                   className={cn(
                     'relative flex items-center gap-3 px-4 py-3 rounded-r-lg transition-all duration-200',
                     isActive(link.href, link.exact)
-                      ? 'text-primary font-bold'
-                      : 'text-muted-foreground group-hover:text-foreground group-hover:bg-muted/50'
+                      ? 'text-primary font-bold bg-primary/10 shadow-[inset_4px_0_0_0_hsl(var(--primary))]'
+                      : 'text-zinc-400 group-hover:text-white group-hover:bg-white/5'
                   )}
                 >
-                  <link.icon className={cn("w-5 h-5", isActive(link.href, link.exact) ? "text-primary" : "text-muted-foreground group-hover:text-primary")} />
+                  <link.icon className={cn("w-5 h-5", isActive(link.href, link.exact) ? "text-primary" : "text-zinc-400 group-hover:text-white")} />
                   <span className="font-medium">{link.label}</span>
                 </div>
               </Link>
             ))}
           </nav>
 
-          {/* User section */}
           <div className="p-4 border-t border-border">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -168,7 +166,6 @@ const AdminDashboard = () => {
         </div>
       </aside>
 
-      {/* Overlay */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
@@ -176,9 +173,7 @@ const AdminDashboard = () => {
         />
       )}
 
-      {/* Main Content */}
       <main className="flex-1 lg:ml-64">
-        {/* Top bar */}
         <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-lg border-b border-border">
           <div className="flex items-center justify-between px-6 py-4">
             <Button
@@ -200,7 +195,6 @@ const AdminDashboard = () => {
           </div>
         </header>
 
-        {/* Page Content */}
         <div className="p-6">
           <Routes>
             <Route index element={<AdminOverview />} />
@@ -208,9 +202,12 @@ const AdminDashboard = () => {
             <Route path="menu" element={<AdminMenu />} />
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="gallery" element={<AdminGallery />} />
+            <Route path="testimonials" element={<AdminTestimonials />} />
             <Route path="messages" element={<AdminMessages />} />
             <Route path="users" element={<AdminUsers />} />
-            <Route path="settings" element={<AdminSettings />} />
+            <Route path="branches" element={<AdminBranches />} />
+            <Route path="rooms" element={<AdminRooms />} />
+            <Route path="settings" element={<SiteContentManager />} />
           </Routes>
         </div>
       </main>
