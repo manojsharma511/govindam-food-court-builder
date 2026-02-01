@@ -34,6 +34,9 @@ interface Page {
   title: string;
   isSystem: boolean;
   sections: PageSection[];
+  metaTitle?: string;
+  metaDescription?: string;
+  metaKeywords?: string;
 }
 
 interface ThemeSettings {
@@ -45,10 +48,18 @@ interface ThemeSettings {
   fontFamilyHeading: string;
   fontFamilyBody: string;
   borderRadius: string;
+  darkModeEnabled?: boolean;
+  darkPrimaryColor?: string;
+  darkSecondaryColor?: string;
+  darkBackgroundColor?: string;
+  darkTextColor?: string;
 }
 
 interface GlobalSettings {
   siteName: string;
+  logoUrl?: string;
+  faviconUrl?: string;
+  description?: string;
   maintenanceMode: boolean;
   ordersEnabled: boolean;
   bookingsEnabled: boolean;
@@ -147,6 +158,16 @@ const AdminSettings = () => {
     }
   }
 
+  const handlePageUpdate = async (pageId: string, data: Partial<Page>) => {
+    try {
+      await api.put(`/pages/${pageId}`, data);
+      setPages(prev => prev.map(p => p.id === pageId ? { ...p, ...data } : p));
+      toast({ title: "Page updated" });
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to update page", variant: "destructive" });
+    }
+  }
+
   // --- UI Helpers ---
 
   const formatContent = (content: any) => {
@@ -199,6 +220,40 @@ const AdminSettings = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" size="sm"><Settings className="w-4 h-4 mr-2" /> SEO & Settings</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Page Settings: {page.title}</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Meta Title</label>
+                          <Input
+                            defaultValue={page.metaTitle || ''}
+                            onChange={(e) => handlePageUpdate(page.id, { metaTitle: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Meta Description</label>
+                          <Textarea
+                            defaultValue={page.metaDescription || ''}
+                            onChange={(e) => handlePageUpdate(page.id, { metaDescription: e.target.value })}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Keywords</label>
+                          <Input
+                            defaultValue={page.metaKeywords || ''}
+                            onChange={(e) => handlePageUpdate(page.id, { metaKeywords: e.target.value })}
+                            placeholder="comma, separated, keywords"
+                          />
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                   {/* Add Section Button Placeholder */}
                   <Button variant="outline" size="sm">Add Section</Button>
                 </div>
@@ -318,6 +373,26 @@ const AdminSettings = () => {
                   {renderColorPicker("Accent Color", theme.accentColor, (v) => setTheme({ ...theme, accentColor: v }))}
                   {renderColorPicker("Background Color", theme.backgroundColor, (v) => setTheme({ ...theme, backgroundColor: v }))}
                 </div>
+
+                <div className="flex items-center justify-between py-4 border-t border-b">
+                  <div className="space-y-0.5">
+                    <label className="text-sm font-medium">Dark Mode Support</label>
+                    <p className="text-xs text-muted-foreground">Enable dark mode toggling for users</p>
+                  </div>
+                  <Switch
+                    checked={theme.darkModeEnabled || false}
+                    onCheckedChange={(c) => setTheme({ ...theme, darkModeEnabled: c })}
+                  />
+                </div>
+
+                {theme.darkModeEnabled && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 animate-in fade-in slide-in-from-top-2">
+                    {renderColorPicker("Dark Primary", theme.darkPrimaryColor || theme.primaryColor, (v) => setTheme({ ...theme, darkPrimaryColor: v }))}
+                    {renderColorPicker("Dark Background", theme.darkBackgroundColor || "#000000", (v) => setTheme({ ...theme, darkBackgroundColor: v }))}
+                    {renderColorPicker("Dark Text", theme.darkTextColor || "#ffffff", (v) => setTheme({ ...theme, darkTextColor: v }))}
+                    {renderColorPicker("Dark Secondary", theme.darkSecondaryColor || theme.secondaryColor, (v) => setTheme({ ...theme, darkSecondaryColor: v }))}
+                  </div>
+                )}
               </div>
 
               <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
@@ -363,6 +438,40 @@ const AdminSettings = () => {
               <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Globe className="w-5 h-5 text-primary" /> General Info</h3>
               <div className="grid gap-4">
                 {renderField("Website Name", globalSettings?.siteName || '', (v) => setGlobalSettings(prev => prev ? ({ ...prev, siteName: v }) : null))}
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground uppercase">Site Description</label>
+                  <Textarea
+                    value={globalSettings?.description || ''}
+                    onChange={(e) => setGlobalSettings(prev => prev ? ({ ...prev, description: e.target.value }) : null)}
+                    className="h-20"
+                    placeholder="Brief description for SEO and Footer"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground uppercase">Logo URL</label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={globalSettings?.logoUrl || ''}
+                        onChange={(e) => setGlobalSettings(prev => prev ? ({ ...prev, logoUrl: e.target.value }) : null)}
+                      />
+                      {globalSettings?.logoUrl && <img src={globalSettings.logoUrl} alt="Logo Preview" className="w-9 h-9 object-contain rounded border bg-white" />}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-muted-foreground uppercase">Favicon URL</label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={globalSettings?.faviconUrl || ''}
+                        onChange={(e) => setGlobalSettings(prev => prev ? ({ ...prev, faviconUrl: e.target.value }) : null)}
+                      />
+                      {globalSettings?.faviconUrl && <img src={globalSettings.faviconUrl} alt="Favicon Preview" className="w-9 h-9 object-contain rounded border bg-white" />}
+                    </div>
+                  </div>
+                </div>
+
                 {renderField("Contact Email", globalSettings?.contactEmail || '', (v) => setGlobalSettings(prev => prev ? ({ ...prev, contactEmail: v }) : null))}
                 {renderField("Phone Number", globalSettings?.contactPhone || '', (v) => setGlobalSettings(prev => prev ? ({ ...prev, contactPhone: v }) : null))}
                 {renderField("Address", globalSettings?.address || '', (v) => setGlobalSettings(prev => prev ? ({ ...prev, address: v }) : null))}

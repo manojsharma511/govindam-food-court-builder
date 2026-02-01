@@ -5,6 +5,7 @@ import { Menu, X, ShoppingCart, User, Phone, LogOut, ChefHat, LayoutDashboard, C
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/store/cartStore';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSiteConfig } from '@/contexts/SiteConfigContext';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -29,6 +30,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const totalItems = useCartStore((state) => state.getTotalItems());
   const { user, signOut, isAdmin, isSuperAdmin } = useAuth();
+  const { settings } = useSiteConfig();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,7 +63,7 @@ export const Header = () => {
         <div className="container mx-auto px-4 py-2 flex justify-between items-center text-sm">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Phone className="w-4 h-4 text-primary" />
-            <span>+91 98765 43210</span>
+            <span>{settings?.contactPhone || '+91 98765 43210'}</span>
           </div>
           <div className="text-muted-foreground">
             Open Daily: 11:00 AM - 11:00 PM
@@ -74,15 +76,23 @@ export const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center shadow-gold">
-              <span className="text-2xl">🍽️</span>
-            </div>
+            {settings?.siteLogo ? (
+              <img src={settings.siteLogo} alt={settings.siteName} className="w-12 h-12 rounded-full object-cover" />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-gradient-gold flex items-center justify-center shadow-gold overflow-hidden">
+                {settings?.logoUrl ? (
+                  <img src={settings.logoUrl} alt={settings.siteName} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl">🍽️</span>
+                )}
+              </div>
+            )}
             <div className="flex flex-col">
               <span className="text-xl font-heading font-bold text-gradient-gold">
-                Hotel Govindam
+                {settings?.siteName || 'Hotel Govindam'}
               </span>
               <span className="text-xs text-muted-foreground tracking-widest uppercase">
-                Food Court
+                {settings?.siteTagline || 'Food Court'}
               </span>
             </div>
           </Link>

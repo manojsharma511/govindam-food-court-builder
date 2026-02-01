@@ -1,11 +1,12 @@
+
 import { Request, Response } from 'express';
 import { prisma } from '../lib/db';
+import { emitConfigUpdate } from '../lib/realtime';
 
 // --- Theme Settings ---
 
 export const getThemeSettings = async (req: Request, res: Response) => {
     try {
-        // For now, get settings for the default branch or the first one found
         const branch = await prisma.branch.findFirst();
         if (!branch) {
             return res.status(404).json({ message: 'No branch found' });
@@ -61,6 +62,7 @@ export const updateThemeSettings = async (req: Request, res: Response) => {
                 }
             });
         }
+        emitConfigUpdate('theme-settings', settings);
         res.json(settings);
     } catch (error) {
         res.status(500).json({ message: 'Error updating theme settings', error });
@@ -73,18 +75,7 @@ export const getGlobalSettings = async (req: Request, res: Response) => {
     try {
         const branch = await prisma.branch.findFirst();
         if (!branch) {
-            // Return defaults if no branch yet (though unlikely if seeded)
-            return res.json({
-                siteName: "Hotel Govindam",
-                maintenanceMode: false,
-                ordersEnabled: true,
-                bookingsEnabled: true,
-                contactEmail: "",
-                contactPhone: "",
-                address: "",
-                socialLinks: {},
-                businessHours: {}
-            });
+            return res.json({});
         }
 
         const settings = await prisma.globalSettings.findFirst({
@@ -101,7 +92,16 @@ export const getGlobalSettings = async (req: Request, res: Response) => {
                 contactPhone: "",
                 address: "",
                 socialLinks: {},
-                businessHours: {}
+                businessHours: {},
+                homeHeroTitle: "Welcome to Hotel Govindam",
+                homeHeroSubtitle: "Authentic Flavors, Royal Ambience",
+                homeHeroCtaText: "View Menu",
+                menuTitle: "Our Menu",
+                menuSubtitle: "Explore our culinary delights",
+                galleryTitle: "Our Gallery",
+                gallerySubtitle: "Visual feast of our ambiance and food",
+                contactTitle: "Contact Us",
+                contactSubtitle: "Get in touch with us"
             });
         }
         res.json(settings);
@@ -137,6 +137,7 @@ export const updateGlobalSettings = async (req: Request, res: Response) => {
                 }
             });
         }
+        emitConfigUpdate('global-settings', settings);
         res.json(settings);
     } catch (error) {
         console.error(error);
@@ -149,11 +150,8 @@ export const updateGlobalSettings = async (req: Request, res: Response) => {
 export const getMessages = async (req: Request, res: Response) => {
     try {
         const branch = await prisma.branch.findFirst();
-        // If filtering by branch becomes necessary:
-        // where: { branchId: branch?.id }
         const messages = await prisma.contactSubmission.findMany({
             orderBy: { createdAt: 'desc' },
-            // Optional: filter by branch if strict isolation is needed
             ...(branch ? { where: { branchId: branch.id } } : {})
         });
         res.json(messages);

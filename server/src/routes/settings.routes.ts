@@ -13,11 +13,11 @@ const router = Router();
 
 // Theme (Public Read, Super Admin Write)
 router.get('/theme', getThemeSettings);
-router.put('/theme', authMiddleware, authorize([Role.SUPER_ADMIN]), updateThemeSettings);
+router.put('/theme', authMiddleware, authorize([Role.SUPER_ADMIN, Role.ADMIN], 'manage_cms'), updateThemeSettings);
 
 // Global Settings (Public Read, Super Admin Write)
 router.get('/global', getGlobalSettings);
-router.put('/global', authMiddleware, authorize([Role.SUPER_ADMIN]), updateGlobalSettings);
+router.put('/global', authMiddleware, authorize([Role.SUPER_ADMIN, Role.ADMIN], 'manage_cms'), updateGlobalSettings);
 
 // Messages (Admin Read)
 router.get('/messages', authMiddleware, authorize([Role.ADMIN, Role.SUPER_ADMIN]), getMessages);

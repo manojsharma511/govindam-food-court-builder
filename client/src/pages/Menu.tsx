@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSiteConfig } from '@/contexts/SiteConfigContext';
 import { motion } from 'framer-motion';
 import { Search, Filter, Loader2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
@@ -17,6 +18,7 @@ interface Category {
 }
 
 const MenuPage = () => {
+  const { settings } = useSiteConfig();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -82,11 +84,10 @@ const MenuPage = () => {
             className="text-center"
           >
             <span className="text-primary text-sm font-medium uppercase tracking-widest">
-              Explore Our
+              {settings?.menuSubtitle || 'Explore Our'}
             </span>
             <h1 className="text-5xl md:text-6xl font-heading font-bold mt-4 mb-6">
-              <span className="text-foreground">Delicious</span>{' '}
-              <span className="text-gradient-gold">Menu</span>
+              <span className="text-foreground">{settings?.menuTitle || 'Delicious Menu'}</span>
             </h1>
             <div className="ornament-line-long mx-auto" />
             <p className="text-muted-foreground max-w-2xl mx-auto mt-6 text-lg">

@@ -44,8 +44,11 @@ const DEFAULT_SLIDES: HeroSlide[] = [
     }
 ];
 
+import { useSiteConfig } from '@/contexts/SiteConfigContext';
+
 export const DynamicHero = ({ title: propTitle, subtitle: propSubtitle, buttonText, badgeText, slides }: HeroProps) => {
-    const activeSlides = slides || DEFAULT_SLIDES;
+    const { settings } = useSiteConfig();
+    const activeSlides = slides && slides.length > 0 ? slides : (settings?.homeHeroSlides && settings.homeHeroSlides.length > 0 ? settings.homeHeroSlides : DEFAULT_SLIDES);
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000, stopOnInteraction: false })]);
     const [currentIndex, setCurrentIndex] = useState(0);
 

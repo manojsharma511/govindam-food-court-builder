@@ -26,9 +26,9 @@ export const register = async (req: Request, res: Response) => {
         });
 
         // Create token
-        const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign({ userId: user.id, role: user.role, permissions: user.permissions }, JWT_SECRET, { expiresIn: '1d' });
 
-        res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+        res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role, permissions: user.permissions } });
     } catch (error) {
         console.error('Register error', error);
         res.status(500).json({ message: 'Server error', error });
@@ -49,9 +49,9 @@ export const login = async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ userId: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1d' });
+        const token = jwt.sign({ userId: user.id, role: user.role, permissions: user.permissions }, JWT_SECRET, { expiresIn: '1d' });
 
-        res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+        res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role, permissions: user.permissions } });
     } catch (error) {
         console.error('Login error', error);
         res.status(500).json({ message: 'Server error', error });

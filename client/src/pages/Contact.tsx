@@ -6,33 +6,43 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation } from '@tanstack/react-query';
 import api from '@/lib/api';
+import { useSiteConfig } from '@/contexts/SiteConfigContext';
 import { contactMessageSchema, formatValidationErrors } from '@/lib/validations';
 
-const contactInfo = [
-  {
-    icon: MapPin,
-    title: 'Address',
-    content: '123 Food Street, Sector 15, Gandhinagar, Gujarat 382015',
-  },
-  {
-    icon: Phone,
-    title: 'Phone',
-    content: '+91 98765 43210',
-  },
-  {
-    icon: Mail,
-    title: 'Email',
-    content: 'info@hotelgovindam.com',
-  },
-  {
-    icon: Clock,
-    title: 'Hours',
-    content: 'Mon - Sun: 11:00 AM - 11:00 PM',
-  },
-];
+// Static contact info removed in favor of dynamic settings
 
 const ContactPage = () => {
+  const { settings } = useSiteConfig();
   const { toast } = useToast();
+
+  // Construct dynamic contact info
+  const contactInfo = [
+    {
+      icon: MapPin,
+      title: 'Address',
+      content: settings?.address || 'Gandhinagar, Gujarat',
+    },
+    {
+      icon: Phone,
+      title: 'Phone',
+      content: settings?.contactPhone || '+91 98765 43210',
+    },
+    {
+      icon: Mail,
+      title: 'Email',
+      content: settings?.contactEmail || 'info@hotelgovindam.com',
+    },
+    {
+      icon: Clock,
+      title: 'Hours',
+      content: settings?.businessHours ?
+        Object.entries(settings.businessHours)
+          .map(([day, hours]) => `${day.charAt(0).toUpperCase() + day.slice(1)}: ${hours}`)
+          .join(', ') || 'Mon - Sun: 11:00 AM - 11:00 PM'
+        : 'Mon - Sun: 11:00 AM - 11:00 PM',
+    },
+  ];
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -135,11 +145,10 @@ const ContactPage = () => {
             className="text-center"
           >
             <span className="text-primary text-sm font-medium uppercase tracking-widest">
-              Get In Touch
+              {settings?.contactSubtitle || 'Get In Touch'}
             </span>
             <h1 className="text-5xl md:text-6xl font-heading font-bold mt-4 mb-6">
-              <span className="text-foreground">Contact</span>{' '}
-              <span className="text-gradient-gold">Us</span>
+              {settings?.contactTitle || 'Contact Us'}
             </h1>
             <div className="ornament-line-long mx-auto" />
             <p className="text-muted-foreground max-w-2xl mx-auto mt-6 text-lg">
@@ -322,11 +331,23 @@ const ContactPage = () => {
 
               {/* Map Placeholder */}
               <div className="rounded-xl overflow-hidden border border-border h-64 bg-muted flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-12 h-12 text-primary mx-auto mb-2" />
-                  <p className="text-muted-foreground">Interactive Map</p>
-                  <p className="text-sm text-muted-foreground">Gandhinagar, Gujarat</p>
-                </div>
+                {settings?.contactMapUrl ? (
+                  <iframe
+                    src={settings.contactMapUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                ) : (
+                  <div className="text-center">
+                    <MapPin className="w-12 h-12 text-primary mx-auto mb-2" />
+                    <p className="text-muted-foreground">Interactive Map</p>
+                    <p className="text-sm text-muted-foreground">Gandhinagar, Gujarat</p>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
